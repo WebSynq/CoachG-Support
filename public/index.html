@@ -898,6 +898,40 @@ async function submitTicketForm() {
 
   const ticketId = 'TKT-' + Math.random().toString(36).substr(2,6).toUpperCase();
 
+  // Upload screenshot to GHL Media Library first (if attached)
+  let screenshotUrl = null;
+  if (ticketImageFile && ticketImageBase64) {
+    btn.textContent = 'Uploading screenshot...';
+    try {
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: ticketImageFile.name,
+          type: ticketImageFile.type,
+          base64: ticketImageBase64,
+          locationId: accountId
+        })
+      });
+      const uploadData = await uploadRes.json().catch(() => ({}));
+      if (!uploadRes.ok || !uploadData.url) {
+        throw new Error(uploadData.error || 'Screenshot upload failed');
+      }
+      screenshotUrl = uploadData.url;
+    } catch (uploadErr) {
+      statusEl.style.display = 'block';
+      statusEl.style.background = 'rgba(239,68,68,0.12)';
+      statusEl.style.border = '1px solid rgba(239,68,68,0.3)';
+      statusEl.style.color = 'var(--red)';
+      statusEl.textContent = 'Screenshot upload failed: ' + uploadErr.message;
+      btn.textContent = 'Submit Support Ticket →';
+      btn.style.opacity = '1';
+      btn.disabled = false;
+      return;
+    }
+    btn.textContent = 'Submitting...';
+  }
+
   const payload = {
     event: 'support.ticket.created',
     source: 'coachg-support-portal',
@@ -910,9 +944,7 @@ async function submitTicketForm() {
       priority: parseInt(priority),
       description: description,
       status: 'open',
-      screenshot: ticketImageBase64
-        ? { name: ticketImageFile.name, type: ticketImageFile.type, base64: ticketImageBase64 }
-        : null
+      screenshot_url: screenshotUrl
     }
   };
 

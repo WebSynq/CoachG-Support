@@ -51,7 +51,8 @@ CoachG-Support/
 │   └── index.html              ← Portal UI — ALL frontend code lives here
 ├── api/
 │   ├── chat.js                 ← POST /api/chat — Anthropic proxy
-│   └── support-webhook.js      ← POST /api/support-webhook — GHL proxy
+│   ├── support-webhook.js      ← POST /api/support-webhook — GHL workflow proxy
+│   └── upload.js               ← POST /api/upload — GHL Media Library proxy
 ├── CLAUDE.md                   ← This file — do not delete or modify
 ├── .env.example                ← Env var template
 ├── .gitignore
@@ -72,13 +73,16 @@ These are hard rules. You never violate them, even if the task seems simple.
 2. **GHL_WEBHOOK_URL stays server-side only** — in Vercel env vars, in /api/support-webhook.js.
    Same rule. Never in client code.
 
-3. **All /api routes validate Origin header** against ALLOWED_ORIGIN env var.
+3. **GHLAPI_KEY stays server-side only** — in Vercel env vars, in /api/upload.js.
+   Same rule. Never in client code.
 
-4. **All /api routes have rate limiting** — /api/chat: 40 req/hr/IP, /api/support-webhook: 10 req/hr/IP.
+4. **All /api routes validate Origin header** against ALLOWED_ORIGIN env var.
 
-5. **All payloads are validated** before being forwarded to downstream services.
+5. **All /api routes have rate limiting** — /api/chat: 40 req/hr/IP, /api/support-webhook: 10 req/hr/IP, /api/upload: 20 req/hr/IP.
 
-6. **No credentials, URLs, or keys in source code.** Use process.env.VAR_NAME only.
+6. **All payloads are validated** before being forwarded to downstream services.
+
+7. **No credentials, URLs, or keys in source code.** Use process.env.VAR_NAME only.
 
 If you are about to write code that violates any of the above, stop and rebuild the approach.
 
@@ -149,6 +153,7 @@ then outputs a JSON action block that the frontend parses and sends to /api/supp
 ```
 ANTHROPIC_API_KEY     — Anthropic API key (sk-ant-...)
 GHL_WEBHOOK_URL       — GHL webhook trigger URL for support workflow
+GHLAPI_KEY            — GHL API key for /api/upload → Media Library
 ALLOWED_ORIGIN        — Deployed Vercel URL (https://coachg-support.vercel.app)
 ```
 
