@@ -187,8 +187,11 @@ export default async function handler(req, res) {
     if (!msg.role || !msg.content || !['user', 'assistant'].includes(msg.role)) {
       return res.status(400).json({ error: 'Invalid message format' });
     }
-    if (typeof msg.content !== 'string' || msg.content.length > 4000) {
-      return res.status(400).json({ error: 'Message content too long or invalid' });
+    const isValidContent = typeof msg.content === 'string'
+      ? msg.content.length <= 4000
+      : Array.isArray(msg.content) && msg.content.length <= 10;
+    if (!isValidContent) {
+      return res.status(400).json({ error: 'Invalid message content' });
     }
   }
 

@@ -161,6 +161,24 @@
   }
   select option { background: var(--bg-panel); }
   textarea { resize: vertical; min-height: 80px; }
+
+  .acct-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 12px;
+    margin-bottom: 14px;
+  }
+  .acct-grid .form-group {
+    margin-bottom: 0;
+  }
+  #ticketAttachBtn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  #attachBtn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
 </style>
 </head>
 <body>
@@ -205,7 +223,26 @@
       </div>
 
       <div class="input-area">
+        <div id="chatImagePreview" style="display:none;
+          padding:8px 0 8px;align-items:center;gap:10px;">
+          <img id="chatPreviewThumb" style="width:40px;height:40px;
+            border-radius:6px;object-fit:cover;border:1px solid var(--border);">
+          <span id="chatImageName" style="font-size:12px;
+            color:var(--text-muted);flex:1;"></span>
+          <button onclick="clearChatImage()"
+            style="background:transparent;border:none;
+            color:var(--red);font-size:14px;cursor:pointer;">✕</button>
+        </div>
         <div class="input-row">
+          <button id="attachBtn" onclick="document.getElementById('chatImageInput').click()"
+            style="width:34px;height:34px;border-radius:8px;border:1px solid var(--border);
+            background:transparent;color:var(--text-muted);font-size:16px;
+            cursor:pointer;flex-shrink:0;display:flex;align-items:center;
+            justify-content:center;transition:all 0.15s;">
+            📎
+          </button>
+          <input type="file" id="chatImageInput" accept="image/*"
+            style="display:none;" onchange="handleChatImage(this)">
           <textarea id="msgInput" rows="1" placeholder="Type your question..." onkeydown="handleKey(event)" oninput="autoResize(this); updateSend();"></textarea>
           <button class="send-btn inactive" id="sendBtn" onclick="sendMessage()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" id="sendIcon">
@@ -222,16 +259,12 @@
     <div class="right-panel">
       <div class="tabs">
         <button class="tab active" onclick="switchTab('status', this)">Status</button>
-        <button class="tab" onclick="switchTab('payload', this)" id="tabPayload">
-          Submit Ticket
-          <span class="tab-badge" id="payloadBadge"></span>
+        <button class="tab" onclick="switchTab('ticket', this)" id="tabTicket">
+          Support Ticket
         </button>
         <button class="tab" onclick="switchTab('zoom', this)" id="tabZoom">
           Book Zoom
           <span class="tab-badge" id="zoomBadge"></span>
-        </button>
-        <button class="tab" onclick="switchTab('account', this)" id="tabAccount">
-          My Account
         </button>
       </div>
 
@@ -264,23 +297,53 @@
         </div>
       </div>
 
-      <!-- SUBMIT TICKET -->
-      <div class="tab-content" id="tabContent-payload">
+      <!-- SUPPORT TICKET (merged: agent identity + ticket form) -->
+      <div class="tab-content" id="tabContent-ticket">
         <div style="padding:4px 0 20px;">
-          <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">
-            Can't get it resolved in chat? Fill out a support ticket
-            and our team will respond based on priority.
+
+          <!-- SECTION 1 — Agent Info -->
+          <div class="section-label">Your Info</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">
+            Saved to your browser — fill once, remembered always.
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Your Name</label>
-            <input type="text" id="ticketName" placeholder="First Last" />
+          <div class="acct-grid">
+            <div class="form-group">
+              <label class="form-label">Your Name</label>
+              <input type="text" id="agentName" placeholder="First Last"
+                onblur="autoSaveField('agentName')" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" id="agentEmail" placeholder="you@agency.com"
+                onblur="autoSaveField('agentEmail')" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Account Name</label>
+              <input type="text" id="accountName" placeholder="My Insurance Agency"
+                onblur="autoSaveField('accountName')" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Account ID</label>
+              <input type="text" id="accountId" placeholder="GHL location ID"
+                onblur="autoSaveField('accountId')" />
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" id="ticketEmail" placeholder="you@agency.com" />
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+            <button onclick="saveAgentInfo()"
+              style="padding:8px 16px;background:transparent;border:1px solid var(--border);
+              border-radius:6px;color:var(--text-secondary);font-size:11px;cursor:pointer;
+              font-weight:600;letter-spacing:1px;text-transform:uppercase;
+              transition:all 0.15s;">
+              Save Info
+            </button>
+            <span id="saveAgentInfoStatus"
+              style="display:none;font-size:12px;color:var(--green);"></span>
           </div>
+
+          <!-- SECTION 2 — Ticket Form -->
+          <div class="section-label" style="margin-top:8px;">Submit a Ticket</div>
 
           <div class="form-group">
             <label class="form-label">Issue Category</label>
@@ -308,6 +371,30 @@
             <label class="form-label">Describe Your Issue</label>
             <textarea id="ticketDescription" rows="4"
               placeholder="Describe what's happening and any steps you already tried..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Screenshot (optional)</label>
+            <button type="button" id="ticketAttachBtn"
+              onclick="document.getElementById('ticketImageInput').click()"
+              style="width:100%;padding:10px 12px;background:var(--bg-input);
+              border:1px dashed var(--border);border-radius:8px;color:var(--text-muted);
+              font-size:12px;cursor:pointer;transition:border-color 0.15s;">
+              📎 Click to attach an image (max 5MB)
+            </button>
+            <input type="file" id="ticketImageInput" accept="image/*"
+              style="display:none;" onchange="handleTicketImage(this)">
+            <div id="ticketImagePreview" style="display:none;margin-top:10px;
+              padding:8px;background:var(--bg-input);border:1px solid var(--border);
+              border-radius:8px;display:none;align-items:center;gap:10px;">
+              <img id="ticketPreviewThumb" style="width:40px;height:40px;
+                border-radius:6px;object-fit:cover;border:1px solid var(--border);">
+              <span id="ticketImageName" style="font-size:12px;
+                color:var(--text-muted);flex:1;"></span>
+              <button type="button" onclick="clearTicketImage()"
+                style="background:transparent;border:none;color:var(--red);
+                font-size:14px;cursor:pointer;">✕</button>
+            </div>
           </div>
 
           <button id="submitTicketBtn" onclick="submitTicketForm()"
@@ -348,62 +435,6 @@
         </div>
       </div>
 
-      <!-- ACCOUNT -->
-      <div class="tab-content" id="tabContent-account">
-        <div class="section-label">Agent Info</div>
-
-        <div class="form-group">
-          <label class="form-label">Your Name</label>
-          <input type="text" id="acctAgentName" placeholder="First Last" />
-        </div>
-
-        <div class="section-label" style="margin-top:20px;">Sub-Account</div>
-
-        <div class="form-group">
-          <label class="form-label">Your Sub-Account Name</label>
-          <input type="text" id="acctAccountName" placeholder="My Insurance Agency" />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Account ID — ask your admin for this</label>
-          <input type="text" id="acctAccountId" placeholder="GHL location ID" />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Contact ID — ask your admin for this</label>
-          <input type="text" id="acctContactId" placeholder="GHL contact ID" />
-        </div>
-
-        <button id="saveMyInfoBtn" onclick="saveMyInfo()"
-          style="width:100%;background:var(--gold);color:var(--bg-base);
-          border:none;border-radius:8px;padding:13px 0;font-weight:700;
-          font-size:14px;letter-spacing:.5px;cursor:pointer;margin-top:4px;
-          transition:opacity 0.15s;">
-          Save My Info
-        </button>
-
-        <div id="saveMyInfoStatus" style="display:none;margin-top:14px;
-          padding:12px;border-radius:8px;font-size:13px;text-align:center;">
-        </div>
-
-        <div class="section-label" style="margin-top:20px;">Platform Tier</div>
-        <div class="status-row">
-          <span class="name">Current Plan</span>
-          <div class="val">
-            <span class="dot-sm" style="background:var(--gold)"></span>
-            <span style="font-size:12px;color:var(--gold)">Growth — $497/mo</span>
-          </div>
-        </div>
-
-        <div class="arch-note" style="margin-top:20px;">
-          <div class="arch-note-title">⚙ Having account issues?</div>
-          <div class="arch-step">
-            <span class="arch-arrow">→</span>
-            <span>Include your Account ID in your support ticket
-            so our team can access your sub-account directly.</span>
-          </div>
-        </div>
-      </div>
     </div>
 
   </div>
@@ -415,55 +446,117 @@
 // ─── STATE ─────────────────────────────────────────────────────────────────
 let chatHistory = [];
 let isLoading = false;
+let chatImageFile = null;
+let chatImageBase64 = null;
+let ticketImageFile = null;
+let ticketImageBase64 = null;
 
 // ─── AGENT IDENTITY (localStorage) ─────────────────────────────────────────
 // GHL Custom Menu Links don't resolve merge tags in URLs, so agents enter
-// their own identity once on the My Account tab. Values persist via localStorage.
+// their own identity once in the Support Ticket tab. Values persist via localStorage.
 
-function populateAccountTab() {
+const IDENTITY_KEYS = ['agentName', 'agentEmail', 'accountName', 'accountId'];
+
+function populateAgentInfo() {
+  IDENTITY_KEYS.forEach(k => {
+    const el = document.getElementById(k);
+    if (el) el.value = localStorage.getItem(k) || '';
+  });
   const agentName = localStorage.getItem('agentName') || '';
-  const accountName = localStorage.getItem('accountName') || '';
-  const accountId = localStorage.getItem('accountId') || '';
-  const contactId = localStorage.getItem('contactId') || '';
-
-  document.getElementById('acctAgentName').value = agentName;
-  document.getElementById('acctAccountName').value = accountName;
-  document.getElementById('acctAccountId').value = accountId;
-  document.getElementById('acctContactId').value = contactId;
-
   if (agentName) {
-    document.getElementById('ticketName').value = agentName;
     const firstName = agentName.split(' ')[0];
     document.getElementById('agentGreeting').textContent =
       'Hey ' + firstName + '! I\'m Coach G Support 🏈 What can I help you with today?';
   }
 }
-populateAccountTab();
+populateAgentInfo();
 
-function saveMyInfo() {
-  const agentName = document.getElementById('acctAgentName').value.trim();
-  const accountName = document.getElementById('acctAccountName').value.trim();
-  const accountId = document.getElementById('acctAccountId').value.trim();
-  const contactId = document.getElementById('acctContactId').value.trim();
-  const statusEl = document.getElementById('saveMyInfoStatus');
+function autoSaveField(key) {
+  const el = document.getElementById(key);
+  if (!el) return;
+  localStorage.setItem(key, el.value.trim());
+  if (key === 'agentName') {
+    const agentName = el.value.trim();
+    if (agentName) {
+      const firstName = agentName.split(' ')[0];
+      document.getElementById('agentGreeting').textContent =
+        'Hey ' + firstName + '! I\'m Coach G Support 🏈 What can I help you with today?';
+    }
+  }
+}
 
-  localStorage.setItem('agentName', agentName);
-  localStorage.setItem('accountName', accountName);
-  localStorage.setItem('accountId', accountId);
-  localStorage.setItem('contactId', contactId);
-
-  statusEl.style.display = 'block';
-  statusEl.style.background = 'rgba(34,197,94,0.12)';
-  statusEl.style.border = '1px solid rgba(34,197,94,0.3)';
-  statusEl.style.color = 'var(--green)';
-  statusEl.textContent = 'Saved!';
-
+function saveAgentInfo() {
+  IDENTITY_KEYS.forEach(k => {
+    const el = document.getElementById(k);
+    if (el) localStorage.setItem(k, el.value.trim());
+  });
+  const status = document.getElementById('saveAgentInfoStatus');
+  status.style.display = 'inline';
+  status.textContent = '✓ Saved!';
+  setTimeout(() => { status.style.display = 'none'; }, 2000);
+  const agentName = localStorage.getItem('agentName') || '';
   if (agentName) {
-    document.getElementById('ticketName').value = agentName;
     const firstName = agentName.split(' ')[0];
     document.getElementById('agentGreeting').textContent =
       'Hey ' + firstName + '! I\'m Coach G Support 🏈 What can I help you with today?';
   }
+}
+
+// ─── IMAGE UPLOAD HANDLERS ─────────────────────────────────────────────────
+function handleChatImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    showError('Image must be under 5MB');
+    input.value = '';
+    return;
+  }
+  chatImageFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    chatImageBase64 = e.target.result.split(',')[1];
+    document.getElementById('chatPreviewThumb').src = e.target.result;
+    document.getElementById('chatImageName').textContent = file.name;
+    document.getElementById('chatImagePreview').style.display = 'flex';
+    updateSend();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearChatImage() {
+  chatImageFile = null;
+  chatImageBase64 = null;
+  document.getElementById('chatImageInput').value = '';
+  document.getElementById('chatImagePreview').style.display = 'none';
+  updateSend();
+}
+
+function handleTicketImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    showError('Image must be under 5MB');
+    input.value = '';
+    return;
+  }
+  ticketImageFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    ticketImageBase64 = e.target.result.split(',')[1];
+    document.getElementById('ticketPreviewThumb').src = e.target.result;
+    document.getElementById('ticketImageName').textContent = file.name;
+    document.getElementById('ticketImagePreview').style.display = 'flex';
+    document.getElementById('ticketAttachBtn').textContent = '📎 Replace image';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearTicketImage() {
+  ticketImageFile = null;
+  ticketImageBase64 = null;
+  document.getElementById('ticketImageInput').value = '';
+  document.getElementById('ticketImagePreview').style.display = 'none';
+  document.getElementById('ticketAttachBtn').textContent = '📎 Click to attach an image (max 5MB)';
 }
 
 // ─── TABS ──────────────────────────────────────────────────────────────────
@@ -484,7 +577,7 @@ function updateSend() {
   const val = document.getElementById('msgInput').value.trim();
   const btn = document.getElementById('sendBtn');
   const paths = document.getElementById('sendIcon').querySelectorAll('path');
-  if (val && !isLoading) {
+  if ((val || chatImageBase64) && !isLoading) {
     btn.className = 'send-btn active';
     paths.forEach(p => p.setAttribute('stroke', '#07090f'));
   } else {
@@ -679,14 +772,34 @@ function handleZoomClick() {
 async function sendMessage() {
   const input = document.getElementById('msgInput');
   const text = input.value.trim();
-  if (!text || isLoading) return;
+  if ((!text && !chatImageBase64) || isLoading) return;
+
+  const hadImage = !!chatImageBase64;
+  const imageMime = chatImageFile ? chatImageFile.type : null;
+  const imageData = chatImageBase64;
+
+  let userContent;
+  if (hadImage) {
+    userContent = [
+      {
+        type: 'image',
+        source: { type: 'base64', media_type: imageMime, data: imageData }
+      },
+      {
+        type: 'text',
+        text: text || 'Please analyze this screenshot and help me resolve the issue.'
+      }
+    ];
+  } else {
+    userContent = text;
+  }
 
   document.getElementById('quickActions').style.display = 'none';
   input.value = ''; input.style.height = 'auto';
+  clearChatImage();
   isLoading = true; updateSend();
 
-  addMessage('user', text);
-  chatHistory.push({ role: 'user', content: text });
+  addMessage('user', text || '[Screenshot shared]');
   showTyping();
 
   try {
@@ -695,7 +808,9 @@ async function sendMessage() {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: chatHistory })
+      body: JSON.stringify({
+        messages: [...chatHistory, { role: 'user', content: userContent }]
+      })
     });
 
     const data = await res.json();
@@ -705,6 +820,14 @@ async function sendMessage() {
     const action = parseAction(rawText);
     const cleanedText = cleanText(rawText);
 
+    if (hadImage) {
+      chatHistory.push({
+        role: 'user',
+        content: '[Image attached] ' + (text || 'Screenshot shared')
+      });
+    } else {
+      chatHistory.push({ role: 'user', content: text });
+    }
     chatHistory.push({ role: 'assistant', content: rawText });
     removeTyping();
     addMessage('assistant', cleanedText, action);
@@ -721,7 +844,7 @@ async function sendMessage() {
 
       if (action.action === 'create_ticket') {
         updateTicketStatus(ghlData.ticketId, action.category, action.priority);
-        switchTab('payload', document.getElementById('tabPayload'));
+        switchTab('ticket', document.getElementById('tabTicket'));
       }
       if (action.action === 'book_zoom') {
         renderZoomWorkflow(ghlData);
@@ -739,8 +862,12 @@ async function sendMessage() {
 }
 
 async function submitTicketForm() {
-  const name = document.getElementById('ticketName').value.trim();
-  const email = document.getElementById('ticketEmail').value.trim();
+  // Identity comes from localStorage (Section 1 of the Support Ticket tab)
+  const name = (localStorage.getItem('agentName') || '').trim();
+  const email = (localStorage.getItem('agentEmail') || '').trim();
+  const accountId = (localStorage.getItem('accountId') || '').trim();
+  const accountName = (localStorage.getItem('accountName') || '').trim();
+
   const category = document.getElementById('ticketCategory').value;
   const priority = document.getElementById('ticketPriority').value;
   const description = document.getElementById('ticketDescription').value.trim();
@@ -748,12 +875,20 @@ async function submitTicketForm() {
   const btn = document.getElementById('submitTicketBtn');
 
   // Validation
-  if (!name || !email || !category || !priority || !description) {
+  if (!name || !email) {
     statusEl.style.display = 'block';
     statusEl.style.background = 'rgba(239,68,68,0.12)';
     statusEl.style.border = '1px solid rgba(239,68,68,0.3)';
     statusEl.style.color = 'var(--red)';
-    statusEl.textContent = 'Please fill in all fields before submitting.';
+    statusEl.textContent = 'Add your name and email in "Your Info" above first.';
+    return;
+  }
+  if (!category || !priority || !description) {
+    statusEl.style.display = 'block';
+    statusEl.style.background = 'rgba(239,68,68,0.12)';
+    statusEl.style.border = '1px solid rgba(239,68,68,0.3)';
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = 'Fill in category, priority, and description before submitting.';
     return;
   }
 
@@ -763,21 +898,21 @@ async function submitTicketForm() {
 
   const ticketId = 'TKT-' + Math.random().toString(36).substr(2,6).toUpperCase();
 
-  const contactId = localStorage.getItem('contactId') || '';
-
   const payload = {
     event: 'support.ticket.created',
     source: 'coachg-support-portal',
     timestamp: new Date().toISOString(),
-    contact_id: contactId,
     contact: { firstName: name, email: email },
-    account: { id: localStorage.getItem('accountId') || '', name: localStorage.getItem('accountName') || '' },
+    account: { id: accountId, name: accountName },
     ticket: {
       id: ticketId,
       category: category,
       priority: parseInt(priority),
       description: description,
-      status: 'open'
+      status: 'open',
+      screenshot: ticketImageBase64
+        ? { name: ticketImageFile.name, type: ticketImageFile.type, base64: ticketImageBase64 }
+        : null
     }
   };
 
@@ -802,12 +937,11 @@ async function submitTicketForm() {
       document.getElementById('ticketBadge').classList.add('visible');
       document.getElementById('ticketBadgeId').textContent = ticketId;
 
-      // Reset form (keep saved name from localStorage)
-      document.getElementById('ticketName').value = localStorage.getItem('agentName') || '';
-      document.getElementById('ticketEmail').value = '';
+      // Clear only ticket-specific fields — keep identity intact
       document.getElementById('ticketCategory').value = '';
       document.getElementById('ticketPriority').value = '';
       document.getElementById('ticketDescription').value = '';
+      clearTicketImage();
 
       btn.textContent = 'Submit Another Ticket →';
       btn.style.opacity = '1';
