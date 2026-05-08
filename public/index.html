@@ -83,7 +83,8 @@
   .input-hint { text-align: center; font-size: 11px; color: var(--text-dim); margin-top: 8px; }
 
   .tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-  .tab { flex: 1; padding: 14px 0; background: transparent; border: none; border-bottom: 2px solid transparent; font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: .5px; text-transform: uppercase; transition: all 0.15s; position: relative; }
+  .tab { flex: 1; padding: 18px 0; background: transparent; border: none; border-bottom: 2px solid transparent; font-size: 14px; font-weight: 700; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; transition: all 0.15s; position: relative; cursor: pointer; }
+  .tab:hover { color: var(--text-primary); }
   .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
   .tab-badge { position: absolute; top: 10px; right: 10px; width: 6px; height: 6px; border-radius: 50%; background: var(--blue); display: none; }
   .tab-badge.show { display: block; }
@@ -197,10 +198,6 @@
         <span class="status-dot"></span>
         AI Online
       </div>
-      <div class="ticket-badge" id="ticketBadge">
-        <span class="status-dot" style="background:var(--blue)"></span>
-        <span id="ticketBadgeId">TKT-XXXXXX</span>
-      </div>
     </div>
   </header>
 
@@ -258,42 +255,44 @@
     <!-- RIGHT PANEL -->
     <div class="right-panel">
       <div class="tabs">
-        <button class="tab active" onclick="switchTab('status', this)">Status</button>
-        <button class="tab" onclick="switchTab('ticket', this)" id="tabTicket">
-          Support Ticket
-        </button>
-        <button class="tab" onclick="switchTab('zoom', this)" id="tabZoom">
-          Book Zoom
-          <span class="tab-badge" id="zoomBadge"></span>
-        </button>
+        <button class="tab active" onclick="switchTab('ai', this)">AI Support</button>
+        <button class="tab" onclick="switchTab('ticket', this)" id="tabTicket">Submit Ticket</button>
       </div>
 
-      <!-- STATUS -->
-      <div class="tab-content active" id="tabContent-status">
-        <div class="section-label">System Status</div>
-        <div class="status-row"><span class="name">AI Support Bot</span><div class="val"><span class="dot-sm" style="background:var(--green)"></span><span style="font-size:12px;color:var(--green)">Online</span></div></div>
-        <div class="status-row"><span class="name">GHL Pipeline</span><div class="val"><span class="dot-sm" style="background:var(--green)"></span><span style="font-size:12px;color:var(--green)">Connected</span></div></div>
-        <div class="status-row"><span class="name">Zoom Booking</span><div class="val"><span class="dot-sm" style="background:var(--green)"></span><span style="font-size:12px;color:var(--green)">Available</span></div></div>
-        <div class="status-row" id="ticketSystemRow"><span class="name">Ticket System</span><div class="val"><span class="dot-sm" style="background:var(--text-muted)"></span><span style="font-size:12px;color:var(--text-muted)">Standby</span></div></div>
+      <!-- AI SUPPORT -->
+      <div class="tab-content active" id="tabContent-ai">
+        <div class="section-label">Coach G AI Support</div>
+        <p style="color:var(--text-muted);font-size:13px;line-height:1.6;margin-bottom:20px;">
+          Ask the AI anything in the chat. It's a senior GHL expert and walks you through fixes step by step.
+        </p>
 
-        <div id="activeTicketCard" style="display:none;" class="ticket-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <span style="font-size:14px;font-weight:700;color:var(--blue)" id="ticketIdDisplay">TKT-XXXXXX</span>
-            <span style="background:var(--blue-dim);color:var(--blue);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;">Open</span>
-          </div>
-          <div class="ticket-meta">
-            <div>Category: <span id="ticketCatDisplay">—</span></div>
-            <div>Priority: <span id="ticketPriDisplay">—</span></div>
-          </div>
-          <div class="ticket-footer">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="22,4 12,14.01 9,11.01" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            GHL webhook fired · Pipeline updated
+        <div class="section-label">What I Can Help With</div>
+        <ul style="list-style:none;padding:0;margin:0 0 20px;color:var(--text-muted);font-size:13px;line-height:1.9;">
+          <li>• Workflow troubleshooting</li>
+          <li>• Conversation AI bot setup</li>
+          <li>• A2P / SMS issues</li>
+          <li>• Pipelines &amp; opportunities</li>
+          <li>• Calendars &amp; appointment booking</li>
+          <li>• Forms, funnels &amp; automations</li>
+          <li>• Snapshots &amp; sub-account config</li>
+          <li>• Email deliverability (SPF/DKIM)</li>
+          <li>• Medicare product questions</li>
+        </ul>
+
+        <div class="arch-note">
+          <div class="arch-note-title">⚙ Pro tip</div>
+          <div class="arch-step">
+            <span class="arch-arrow">→</span>
+            <span>Attach a screenshot to the chat — the AI can read it and give you exact click steps.</span>
           </div>
         </div>
 
-        <div id="statusEmpty" class="empty-state">
-          <div class="empty-icon">🏈</div>
-          <p>Chat with the AI to get help.<br>Tickets appear here when created.</p>
+        <div class="arch-note" style="margin-top:14px;">
+          <div class="arch-note-title">⚙ Need direct support?</div>
+          <div class="arch-step">
+            <span class="arch-arrow">→</span>
+            <span>Switch to Submit Ticket if the AI can't resolve it. Include details and a screenshot.</span>
+          </div>
         </div>
       </div>
 
@@ -408,30 +407,6 @@
           <div id="ticketFormStatus" style="display:none;margin-top:14px;
             padding:12px;border-radius:8px;font-size:13px;text-align:center;">
           </div>
-        </div>
-      </div>
-
-      <!-- ZOOM -->
-      <div class="tab-content" id="tabContent-zoom">
-        <div class="zoom-card">
-          <div class="zoom-title">30-Min Support Call</div>
-          <div class="zoom-desc">Live screen share with the COACHG support team. Book a slot and get your issue resolved in real time.</div>
-          <button class="zoom-btn" onclick="handleZoomClick()">📅 Book Zoom Call →</button>
-          <div class="zoom-hint">Opens your GHL booking calendar</div>
-          <div class="zoom-meta">
-            <div class="zoom-meta-row">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="var(--text-muted)" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="2" x2="8" y2="6" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke="var(--text-muted)" stroke-width="2"/></svg>
-              M–F · 9am–5pm CST
-            </div>
-            <div class="zoom-meta-row">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="var(--text-muted)" stroke-width="2"/><polyline points="12,6 12,12 16,14" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              30-minute sessions
-            </div>
-          </div>
-        </div>
-        <div id="zoomWorkflow" style="display:none;">
-          <div class="section-label">GHL Workflow Triggered</div>
-          <div id="zoomWorkflowActions"></div>
         </div>
       </div>
 
@@ -609,15 +584,12 @@ function showError(msg) {
 }
 
 // ─── RENDER MESSAGES ───────────────────────────────────────────────────────
-function addMessage(role, text, action) {
+function addMessage(role, text) {
   const msgs = document.getElementById('messages');
   const row = document.createElement('div');
   row.className = 'msg-row ' + (role === 'user' ? 'user' : '');
   if (role === 'assistant') {
-    let actionHTML = '';
-    if (action?.action === 'create_ticket') actionHTML = `<div class="bubble-action ticket">🎫 Ticket created — firing to GHL...</div>`;
-    if (action?.action === 'book_zoom') actionHTML = `<div class="bubble-action zoom">📅 Zoom escalation — firing to GHL...</div>`;
-    row.innerHTML = `<div class="avatar">G</div><div class="bubble bot">${escHtml(text)}${actionHTML}</div>`;
+    row.innerHTML = `<div class="avatar">G</div><div class="bubble bot">${escHtml(text)}</div>`;
   } else {
     row.innerHTML = `<div class="bubble user">${escHtml(text)}</div>`;
   }
@@ -642,130 +614,9 @@ function escHtml(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
 }
 
-// ─── ACTION PARSING ────────────────────────────────────────────────────────
-function parseAction(text) {
-  const match = text.match(/\{"action":[^}]+\}/);
-  if (match) { try { return JSON.parse(match[0]); } catch(e) {} }
-  return null;
-}
-
 function cleanText(text) {
+  // Strip any stray {"action":...} JSON the AI might emit (defensive)
   return text.replace(/\{"action":[^}]+\}/, '').trim();
-}
-
-// ─── GHL PAYLOAD BUILDER ───────────────────────────────────────────────────
-function buildGHLPayload(action) {
-  const base = {
-    timestamp: new Date().toISOString(),
-    source: 'coachg-support-portal',
-    event: action.action === 'create_ticket' ? 'support.ticket.created' : 'support.zoom.requested',
-    contact: {
-      firstName: localStorage.getItem('agentName') || '',
-      accountId: localStorage.getItem('accountId') || '',
-      accountName: localStorage.getItem('accountName') || '',
-      contactId: localStorage.getItem('contactId') || ''
-    },
-    account: { id: localStorage.getItem('accountId') || '', name: localStorage.getItem('accountName') || '' }
-  };
-
-  if (action.action === 'create_ticket') {
-    const tid = 'TKT-' + Math.random().toString(36).substr(2,6).toUpperCase();
-    return {
-      payload: { ...base, ticket: { id: tid, category: action.category, priority: action.priority, description: action.description, status: 'open' } },
-      ticketId: tid,
-      triggers: [
-        '✅ Create Opportunity → "COACHG Support Tickets" pipeline',
-        '✅ Stage: New Ticket',
-        '✅ Add Tags: support-open, support-' + (action.category||'').toLowerCase().replace(/[/\s]+/g,'-'),
-        '✅ Set Field: support-issue-category = ' + action.category,
-        '✅ Set Field: support-priority = ' + action.priority,
-        '✅ Internal notification → support team',
-        '✅ SMS → agent: ticket confirmation'
-      ]
-    };
-  }
-
-  return {
-    payload: { ...base, escalation: { reason: action.reason, urgency: 'high' } },
-    ticketId: null,
-    triggers: [
-      '✅ Add Tags: support-zoom-scheduled, support-escalated',
-      '✅ Move Opportunity → Stage: Zoom Scheduled',
-      '✅ SMS → agent: Zoom booking link',
-      '✅ Create task → support team: Zoom assignment',
-      '✅ Internal escalation alert'
-    ]
-  };
-}
-
-// ─── FIRE GHL WEBHOOK ──────────────────────────────────────────────────────
-// Posts to /api/support-webhook (Vercel serverless function)
-// The function validates + forwards to GHL_WEBHOOK_URL env var server-side.
-async function fireGHLWebhook(payload) {
-  try {
-    const res = await fetch('/api/support-webhook', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      console.error('[webhook] Error:', data.error);
-      return false;
-    }
-    return true;
-  } catch (err) {
-    console.error('[webhook] Network error:', err.message);
-    return false;
-  }
-}
-
-// ─── UI UPDATES ────────────────────────────────────────────────────────────
-function updateTicketStatus(ticketId, category, priority) {
-  document.getElementById('ticketBadge').classList.add('visible');
-  document.getElementById('ticketBadgeId').textContent = ticketId;
-  document.getElementById('ticketIdDisplay').textContent = ticketId;
-  document.getElementById('ticketCatDisplay').textContent = category;
-  const priColors = { 1: 'var(--green)', 2: 'var(--gold)', 3: 'var(--red)' };
-  const priLabels = { 1: 'Low — Can wait', 2: 'Medium — This week', 3: 'High — Today' };
-  const el = document.getElementById('ticketPriDisplay');
-  el.textContent = priLabels[priority] || priority;
-  el.style.color = priColors[priority] || 'var(--text-secondary)';
-  document.getElementById('ticketSystemRow').innerHTML = `<span class="name">Ticket System</span><div class="val"><span class="dot-sm" style="background:var(--blue)"></span><span style="font-size:12px;color:var(--blue)">Active</span></div>`;
-  document.getElementById('activeTicketCard').style.display = 'block';
-  document.getElementById('statusEmpty').style.display = 'none';
-}
-
-function renderPayload(ghlData, fired) {
-  if (!ghlData.ticketId) return;
-
-  document.getElementById('ticketBadge').classList.add('visible');
-  document.getElementById('ticketBadgeId').textContent = ghlData.ticketId;
-
-  document.getElementById('ticketSystemRow').innerHTML = `<span class="name">Ticket System</span><div class="val"><span class="dot-sm" style="background:var(--blue)"></span><span style="font-size:12px;color:var(--blue)">Active</span></div>`;
-  document.getElementById('activeTicketCard').style.display = 'block';
-  document.getElementById('statusEmpty').style.display = 'none';
-}
-
-function renderZoomWorkflow(ghlData) {
-  document.getElementById('zoomWorkflow').style.display = 'block';
-  const za = document.getElementById('zoomWorkflowActions');
-  za.innerHTML = '';
-  ghlData.triggers.forEach(t => {
-    const d = document.createElement('div');
-    d.className = 'workflow-item'; d.textContent = t; za.appendChild(d);
-  });
-  document.getElementById('zoomBadge').classList.add('show');
-}
-
-function handleZoomClick() {
-  // Replace ZOOM_CALENDAR_URL with your GHL support Zoom calendar link
-  const url = 'https://go.coachscrm.com/widget/bookings/ai-support-calendar';
-  if (url === 'ZOOM_CALENDAR_URL') {
-    alert('Replace ZOOM_CALENDAR_URL in index.html with your GHL support calendar link.');
-    return;
-  }
-  window.open(url, '_blank');
 }
 
 // ─── SEND MESSAGE ──────────────────────────────────────────────────────────
@@ -817,7 +668,6 @@ async function sendMessage() {
     if (!res.ok) { throw new Error(data.error || 'API error'); }
 
     const rawText = data.content?.[0]?.text || 'I ran into an issue. Please try again.';
-    const action = parseAction(rawText);
     const cleanedText = cleanText(rawText);
 
     if (hadImage) {
@@ -830,27 +680,7 @@ async function sendMessage() {
     }
     chatHistory.push({ role: 'assistant', content: rawText });
     removeTyping();
-    addMessage('assistant', cleanedText, action);
-
-    if (action) {
-      const ghlData = buildGHLPayload(action);
-
-      // Show payload immediately (optimistic)
-      renderPayload(ghlData, false);
-
-      // Fire to GHL via /api/support-webhook
-      const fired = await fireGHLWebhook(ghlData.payload);
-      renderPayload(ghlData, fired);
-
-      if (action.action === 'create_ticket') {
-        updateTicketStatus(ghlData.ticketId, action.category, action.priority);
-        switchTab('ticket', document.getElementById('tabTicket'));
-      }
-      if (action.action === 'book_zoom') {
-        renderZoomWorkflow(ghlData);
-        switchTab('zoom', document.getElementById('tabZoom'));
-      }
-    }
+    addMessage('assistant', cleanedText);
 
   } catch (err) {
     removeTyping();
@@ -964,10 +794,6 @@ async function submitTicketForm() {
       statusEl.style.color = 'var(--green)';
       statusEl.innerHTML = '✅ Ticket <strong>' + ticketId +
         '</strong> submitted! Check your email for confirmation.';
-
-      // Update header badge
-      document.getElementById('ticketBadge').classList.add('visible');
-      document.getElementById('ticketBadgeId').textContent = ticketId;
 
       // Clear only ticket-specific fields — keep identity intact
       document.getElementById('ticketCategory').value = '';
