@@ -528,20 +528,14 @@ function updateTicketStatus(ticketId, category, priority) {
 }
 
 function renderPayload(ghlData, fired) {
-  document.getElementById('payloadEmpty').style.display = 'none';
-  const content = document.getElementById('payloadContent');
-  content.style.display = 'flex';
-  content.style.flexDirection = 'column';
-  document.getElementById('payloadJson').textContent = JSON.stringify(ghlData.payload, null, 2);
-  document.getElementById('firedBadge').className = fired ? 'fired-badge' : 'pending-badge';
-  document.getElementById('firedBadge').textContent = fired ? 'FIRED' : 'SENDING...';
-  const wa = document.getElementById('workflowActions');
-  wa.innerHTML = '';
-  ghlData.triggers.forEach(t => {
-    const d = document.createElement('div');
-    d.className = 'workflow-item'; d.textContent = t; wa.appendChild(d);
-  });
-  document.getElementById('payloadBadge').classList.add('show');
+  if (!ghlData.ticketId) return;
+
+  document.getElementById('ticketBadge').classList.add('visible');
+  document.getElementById('ticketBadgeId').textContent = ghlData.ticketId;
+
+  document.getElementById('ticketSystemRow').innerHTML = `<span class="name">Ticket System</span><div class="val"><span class="dot-sm" style="background:var(--blue)"></span><span style="font-size:12px;color:var(--blue)">Active</span></div>`;
+  document.getElementById('activeTicketCard').style.display = 'block';
+  document.getElementById('statusEmpty').style.display = 'none';
 }
 
 function renderZoomWorkflow(ghlData) {
