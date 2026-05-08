@@ -352,30 +352,38 @@
       <div class="tab-content" id="tabContent-account">
         <div class="section-label">Agent Info</div>
 
-        <div class="status-row">
-          <span class="name">Name</span>
-          <span id="displayName" style="font-size:13px;color:var(--text-primary);">—</span>
-        </div>
-        <div class="status-row">
-          <span class="name">Email</span>
-          <span id="displayEmail" style="font-size:13px;color:var(--text-secondary);">—</span>
+        <div class="form-group">
+          <label class="form-label">Your Name</label>
+          <input type="text" id="acctAgentName" placeholder="First Last" />
         </div>
 
         <div class="section-label" style="margin-top:20px;">Sub-Account</div>
 
-        <div class="status-row">
-          <span class="name">Account Name</span>
-          <span id="displayAccountName" style="font-size:13px;color:var(--text-primary);">—</span>
+        <div class="form-group">
+          <label class="form-label">Your Sub-Account Name</label>
+          <input type="text" id="acctAccountName" placeholder="My Insurance Agency" />
         </div>
-        <div class="status-row">
-          <span class="name">Account ID</span>
-          <span id="displayAccountId"
-            style="font-size:11px;color:var(--text-muted);font-family:monospace;">—</span>
+
+        <div class="form-group">
+          <label class="form-label">Account ID — ask your admin for this</label>
+          <input type="text" id="acctAccountId" placeholder="GHL location ID" />
         </div>
-        <div class="status-row">
-          <span class="name">Contact ID</span>
-          <span id="displayContactId"
-            style="font-size:11px;color:var(--text-muted);font-family:monospace;">—</span>
+
+        <div class="form-group">
+          <label class="form-label">Contact ID — ask your admin for this</label>
+          <input type="text" id="acctContactId" placeholder="GHL contact ID" />
+        </div>
+
+        <button id="saveMyInfoBtn" onclick="saveMyInfo()"
+          style="width:100%;background:var(--gold);color:var(--bg-base);
+          border:none;border-radius:8px;padding:13px 0;font-weight:700;
+          font-size:14px;letter-spacing:.5px;cursor:pointer;margin-top:4px;
+          transition:opacity 0.15s;">
+          Save My Info
+        </button>
+
+        <div id="saveMyInfoStatus" style="display:none;margin-top:14px;
+          padding:12px;border-radius:8px;font-size:13px;text-align:center;">
         </div>
 
         <div class="section-label" style="margin-top:20px;">Platform Tier</div>
@@ -408,38 +416,55 @@
 let chatHistory = [];
 let isLoading = false;
 
-// ─── URL PARAMS (from GHL Custom Menu Link) ────────────────────────────────
-// Custom Menu Link URL:
-// https://coach-g-support.vercel.app
-//   ?contact_id={{contact.id}}
-//   &first_name={{contact.first_name}}
-//   &last_name={{contact.last_name}}
-//   &email={{contact.email}}
-//   &account_id={{location.id}}
-//   &account_name={{location.name}}
-const urlParams = new URLSearchParams(window.location.search);
-const GHL_CONTACT_ID = urlParams.get('contact_id') || '';
-const AGENT_FIRST_NAME = urlParams.get('first_name') || '';
-const AGENT_LAST_NAME = urlParams.get('last_name') || '';
-const AGENT_EMAIL = urlParams.get('email') || '';
-const GHL_ACCOUNT_ID = urlParams.get('account_id') || '';
-const GHL_ACCOUNT_NAME = urlParams.get('account_name') || '';
+// ─── AGENT IDENTITY (localStorage) ─────────────────────────────────────────
+// GHL Custom Menu Links don't resolve merge tags in URLs, so agents enter
+// their own identity once on the My Account tab. Values persist via localStorage.
 
 function populateAccountTab() {
-  const fullName = [AGENT_FIRST_NAME, AGENT_LAST_NAME].filter(Boolean).join(' ');
-  document.getElementById('displayName').textContent = fullName || 'Not provided';
-  document.getElementById('displayEmail').textContent = AGENT_EMAIL || 'Not provided';
-  document.getElementById('displayAccountName').textContent = GHL_ACCOUNT_NAME || 'Not provided';
-  document.getElementById('displayAccountId').textContent = GHL_ACCOUNT_ID || 'Not provided';
-  document.getElementById('displayContactId').textContent = GHL_CONTACT_ID || 'Not provided';
+  const agentName = localStorage.getItem('agentName') || '';
+  const accountName = localStorage.getItem('accountName') || '';
+  const accountId = localStorage.getItem('accountId') || '';
+  const contactId = localStorage.getItem('contactId') || '';
 
-  // Update greeting in first bot message if name available
-  if (fullName) {
+  document.getElementById('acctAgentName').value = agentName;
+  document.getElementById('acctAccountName').value = accountName;
+  document.getElementById('acctAccountId').value = accountId;
+  document.getElementById('acctContactId').value = contactId;
+
+  if (agentName) {
+    document.getElementById('ticketName').value = agentName;
+    const firstName = agentName.split(' ')[0];
     document.getElementById('agentGreeting').textContent =
-      'Hey ' + AGENT_FIRST_NAME + '! I\'m Coach G Support 🏈 What can I help you with today?';
+      'Hey ' + firstName + '! I\'m Coach G Support 🏈 What can I help you with today?';
   }
 }
 populateAccountTab();
+
+function saveMyInfo() {
+  const agentName = document.getElementById('acctAgentName').value.trim();
+  const accountName = document.getElementById('acctAccountName').value.trim();
+  const accountId = document.getElementById('acctAccountId').value.trim();
+  const contactId = document.getElementById('acctContactId').value.trim();
+  const statusEl = document.getElementById('saveMyInfoStatus');
+
+  localStorage.setItem('agentName', agentName);
+  localStorage.setItem('accountName', accountName);
+  localStorage.setItem('accountId', accountId);
+  localStorage.setItem('contactId', contactId);
+
+  statusEl.style.display = 'block';
+  statusEl.style.background = 'rgba(34,197,94,0.12)';
+  statusEl.style.border = '1px solid rgba(34,197,94,0.3)';
+  statusEl.style.color = 'var(--green)';
+  statusEl.textContent = 'Saved!';
+
+  if (agentName) {
+    document.getElementById('ticketName').value = agentName;
+    const firstName = agentName.split(' ')[0];
+    document.getElementById('agentGreeting').textContent =
+      'Hey ' + firstName + '! I\'m Coach G Support 🏈 What can I help you with today?';
+  }
+}
 
 // ─── TABS ──────────────────────────────────────────────────────────────────
 function switchTab(tab, btn) {
@@ -542,7 +567,7 @@ function buildGHLPayload(action) {
     source: 'coachg-support-portal',
     event: action.action === 'create_ticket' ? 'support.ticket.created' : 'support.zoom.requested',
     contact: { firstName: '{{contact.first_name}}', email: '{{contact.email}}', phone: '{{contact.phone}}' },
-    account: { id: GHL_ACCOUNT_ID, name: GHL_ACCOUNT_NAME }
+    account: { id: localStorage.getItem('accountId') || '', name: localStorage.getItem('accountName') || '' }
   };
 
   if (action.action === 'create_ticket') {
@@ -733,7 +758,7 @@ async function submitTicketForm() {
 
   const ticketId = 'TKT-' + Math.random().toString(36).substr(2,6).toUpperCase();
 
-  const contactId = new URLSearchParams(window.location.search).get('contact_id') || '';
+  const contactId = localStorage.getItem('contactId') || '';
 
   const payload = {
     event: 'support.ticket.created',
@@ -741,7 +766,7 @@ async function submitTicketForm() {
     timestamp: new Date().toISOString(),
     contact_id: contactId,
     contact: { firstName: name, email: email },
-    account: { id: GHL_ACCOUNT_ID, name: GHL_ACCOUNT_NAME },
+    account: { id: localStorage.getItem('accountId') || '', name: localStorage.getItem('accountName') || '' },
     ticket: {
       id: ticketId,
       category: category,
@@ -772,8 +797,8 @@ async function submitTicketForm() {
       document.getElementById('ticketBadge').classList.add('visible');
       document.getElementById('ticketBadgeId').textContent = ticketId;
 
-      // Reset form
-      document.getElementById('ticketName').value = '';
+      // Reset form (keep saved name from localStorage)
+      document.getElementById('ticketName').value = localStorage.getItem('agentName') || '';
       document.getElementById('ticketEmail').value = '';
       document.getElementById('ticketCategory').value = '';
       document.getElementById('ticketPriority').value = '';
