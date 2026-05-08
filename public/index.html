@@ -193,7 +193,7 @@
       <div class="messages" id="messages">
         <div class="msg-row">
           <div class="avatar">G</div>
-          <div class="bubble bot">Hey! I'm Coach G Support 🏈 What can I help you with today? I can answer platform questions, troubleshoot issues, or connect you with the team.</div>
+          <div class="bubble bot" id="agentGreeting">Hey! I'm Coach G Support 🏈 What can I help you with today? I can answer platform questions, troubleshoot issues, or connect you with the team.</div>
         </div>
       </div>
 
@@ -229,6 +229,9 @@
         <button class="tab" onclick="switchTab('zoom', this)" id="tabZoom">
           Book Zoom
           <span class="tab-badge" id="zoomBadge"></span>
+        </button>
+        <button class="tab" onclick="switchTab('account', this)" id="tabAccount">
+          My Account
         </button>
       </div>
 
@@ -344,6 +347,55 @@
           <div id="zoomWorkflowActions"></div>
         </div>
       </div>
+
+      <!-- ACCOUNT -->
+      <div class="tab-content" id="tabContent-account">
+        <div class="section-label">Agent Info</div>
+
+        <div class="status-row">
+          <span class="name">Name</span>
+          <span id="displayName" style="font-size:13px;color:var(--text-primary);">—</span>
+        </div>
+        <div class="status-row">
+          <span class="name">Email</span>
+          <span id="displayEmail" style="font-size:13px;color:var(--text-secondary);">—</span>
+        </div>
+
+        <div class="section-label" style="margin-top:20px;">Sub-Account</div>
+
+        <div class="status-row">
+          <span class="name">Account Name</span>
+          <span id="displayAccountName" style="font-size:13px;color:var(--text-primary);">—</span>
+        </div>
+        <div class="status-row">
+          <span class="name">Account ID</span>
+          <span id="displayAccountId"
+            style="font-size:11px;color:var(--text-muted);font-family:monospace;">—</span>
+        </div>
+        <div class="status-row">
+          <span class="name">Contact ID</span>
+          <span id="displayContactId"
+            style="font-size:11px;color:var(--text-muted);font-family:monospace;">—</span>
+        </div>
+
+        <div class="section-label" style="margin-top:20px;">Platform Tier</div>
+        <div class="status-row">
+          <span class="name">Current Plan</span>
+          <div class="val">
+            <span class="dot-sm" style="background:var(--gold)"></span>
+            <span style="font-size:12px;color:var(--gold)">Growth — $497/mo</span>
+          </div>
+        </div>
+
+        <div class="arch-note" style="margin-top:20px;">
+          <div class="arch-note-title">⚙ Having account issues?</div>
+          <div class="arch-step">
+            <span class="arch-arrow">→</span>
+            <span>Include your Account ID in your support ticket
+            so our team can access your sub-account directly.</span>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -355,6 +407,39 @@
 // ─── STATE ─────────────────────────────────────────────────────────────────
 let chatHistory = [];
 let isLoading = false;
+
+// ─── URL PARAMS (from GHL Custom Menu Link) ────────────────────────────────
+// Custom Menu Link URL:
+// https://coach-g-support.vercel.app
+//   ?contact_id={{contact.id}}
+//   &first_name={{contact.first_name}}
+//   &last_name={{contact.last_name}}
+//   &email={{contact.email}}
+//   &account_id={{location.id}}
+//   &account_name={{location.name}}
+const urlParams = new URLSearchParams(window.location.search);
+const GHL_CONTACT_ID = urlParams.get('contact_id') || '';
+const AGENT_FIRST_NAME = urlParams.get('first_name') || '';
+const AGENT_LAST_NAME = urlParams.get('last_name') || '';
+const AGENT_EMAIL = urlParams.get('email') || '';
+const GHL_ACCOUNT_ID = urlParams.get('account_id') || '';
+const GHL_ACCOUNT_NAME = urlParams.get('account_name') || '';
+
+function populateAccountTab() {
+  const fullName = [AGENT_FIRST_NAME, AGENT_LAST_NAME].filter(Boolean).join(' ');
+  document.getElementById('displayName').textContent = fullName || 'Not provided';
+  document.getElementById('displayEmail').textContent = AGENT_EMAIL || 'Not provided';
+  document.getElementById('displayAccountName').textContent = GHL_ACCOUNT_NAME || 'Not provided';
+  document.getElementById('displayAccountId').textContent = GHL_ACCOUNT_ID || 'Not provided';
+  document.getElementById('displayContactId').textContent = GHL_CONTACT_ID || 'Not provided';
+
+  // Update greeting in first bot message if name available
+  if (fullName) {
+    document.getElementById('agentGreeting').textContent =
+      'Hey ' + AGENT_FIRST_NAME + '! I\'m Coach G Support 🏈 What can I help you with today?';
+  }
+}
+populateAccountTab();
 
 // ─── TABS ──────────────────────────────────────────────────────────────────
 function switchTab(tab, btn) {
@@ -456,7 +541,8 @@ function buildGHLPayload(action) {
     timestamp: new Date().toISOString(),
     source: 'coachg-support-portal',
     event: action.action === 'create_ticket' ? 'support.ticket.created' : 'support.zoom.requested',
-    contact: { firstName: '{{contact.first_name}}', email: '{{contact.email}}', phone: '{{contact.phone}}' }
+    contact: { firstName: '{{contact.first_name}}', email: '{{contact.email}}', phone: '{{contact.phone}}' },
+    account: { id: GHL_ACCOUNT_ID, name: GHL_ACCOUNT_NAME }
   };
 
   if (action.action === 'create_ticket') {
@@ -655,6 +741,7 @@ async function submitTicketForm() {
     timestamp: new Date().toISOString(),
     contact_id: contactId,
     contact: { firstName: name, email: email },
+    account: { id: GHL_ACCOUNT_ID, name: GHL_ACCOUNT_NAME },
     ticket: {
       id: ticketId,
       category: category,
