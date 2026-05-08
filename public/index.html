@@ -566,7 +566,12 @@ function buildGHLPayload(action) {
     timestamp: new Date().toISOString(),
     source: 'coachg-support-portal',
     event: action.action === 'create_ticket' ? 'support.ticket.created' : 'support.zoom.requested',
-    contact: { firstName: '{{contact.first_name}}', email: '{{contact.email}}', phone: '{{contact.phone}}' },
+    contact: {
+      firstName: localStorage.getItem('agentName') || '',
+      accountId: localStorage.getItem('accountId') || '',
+      accountName: localStorage.getItem('accountName') || '',
+      contactId: localStorage.getItem('contactId') || ''
+    },
     account: { id: localStorage.getItem('accountId') || '', name: localStorage.getItem('accountName') || '' }
   };
 

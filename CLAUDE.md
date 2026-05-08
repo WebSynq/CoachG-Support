@@ -106,7 +106,7 @@ If you are about to write code that violates any of the above, stop and rebuild 
 - Vanilla JS only — no libraries except Google Fonts CDN
 - All API calls go to /api/chat and /api/support-webhook — never to external APIs directly
 - escapeHtml() must be called on ALL user-supplied text before inserting into DOM
-- No localStorage, no sessionStorage — session state only
+- localStorage allowed for agent identity only (agentName, accountName, accountId, contactId) — never for tokens, API keys, or PII beyond display name
 - Must render correctly inside a GHL iFrame (no fixed-position modals, no window.top access)
 ```
 
