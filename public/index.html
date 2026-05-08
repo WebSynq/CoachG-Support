@@ -129,6 +129,38 @@
 
   .error-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a0a0a; border: 1px solid rgba(239,68,68,0.4); border-radius: 10px; padding: 10px 18px; font-size: 13px; color: #fca5a5; display: none; z-index: 100; white-space: nowrap; }
   .error-toast.show { display: block; }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+  .form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+  }
+  input[type="text"], input[type="email"], select, textarea {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--text-primary);
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+  }
+  input[type="text"]:focus, input[type="email"]:focus,
+  select:focus, textarea:focus {
+    border-color: var(--gold);
+  }
+  select option { background: var(--bg-panel); }
+  textarea { resize: vertical; min-height: 80px; }
 </style>
 </head>
 <body>
@@ -191,7 +223,7 @@
       <div class="tabs">
         <button class="tab active" onclick="switchTab('status', this)">Status</button>
         <button class="tab" onclick="switchTab('payload', this)" id="tabPayload">
-          GHL Payload
+          Submit Ticket
           <span class="tab-badge" id="payloadBadge"></span>
         </button>
         <button class="tab" onclick="switchTab('zoom', this)" id="tabZoom">
@@ -229,26 +261,62 @@
         </div>
       </div>
 
-      <!-- GHL PAYLOAD -->
+      <!-- SUBMIT TICKET -->
       <div class="tab-content" id="tabContent-payload">
-        <div id="payloadEmpty" class="empty-state">
-          <div class="empty-icon">⚡</div>
-          <p>GHL webhook payload appears here<br>when a ticket is created or<br>Zoom is requested in chat.</p>
-        </div>
-        <div id="payloadContent" style="display:none;flex-direction:column;">
-          <div class="payload-header">
-            <span class="payload-route">App → /api/support-webhook → GHL</span>
-            <span class="fired-badge" id="firedBadge">FIRED</span>
+        <div style="padding:4px 0 20px;">
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.6;">
+            Can't get it resolved in chat? Fill out a support ticket
+            and our team will respond based on priority.
           </div>
-          <div class="code-block"><pre id="payloadJson"></pre></div>
-          <div class="section-label">Workflow Actions Triggered</div>
-          <div id="workflowActions"></div>
-          <div class="arch-note">
-            <div class="arch-note-title">⚙ Data Flow</div>
-            <div class="arch-step"><span class="arch-arrow">1</span><span>Browser POSTs to <code style="color:var(--gold);font-size:11px;">/api/support-webhook</code> (Vercel function)</span></div>
-            <div class="arch-step"><span class="arch-arrow">2</span><span>Function validates origin, rate limit, payload shape</span></div>
-            <div class="arch-step"><span class="arch-arrow">3</span><span>Forwards server-to-server to <code style="color:var(--gold);font-size:11px;">GHL_WEBHOOK_URL</code> env var</span></div>
-            <div class="arch-step"><span class="arch-arrow">4</span><span>GHL workflow fires: opportunity created, tags applied, SMS sent</span></div>
+
+          <div class="form-group">
+            <label class="form-label">Your Name</label>
+            <input type="text" id="ticketName" placeholder="First Last" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" id="ticketEmail" placeholder="you@agency.com" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Issue Category</label>
+            <select id="ticketCategory">
+              <option value="">Select category...</option>
+              <option value="Platform/Tech">Platform / Tech</option>
+              <option value="Billing">Billing</option>
+              <option value="Training">Training</option>
+              <option value="Compliance">Compliance</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Priority</label>
+            <select id="ticketPriority">
+              <option value="">Select priority...</option>
+              <option value="1">1 — Low (can wait)</option>
+              <option value="2">2 — Medium (this week)</option>
+              <option value="3">3 — High (today)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Describe Your Issue</label>
+            <textarea id="ticketDescription" rows="4"
+              placeholder="Describe what's happening and any steps you already tried..."></textarea>
+          </div>
+
+          <button id="submitTicketBtn" onclick="submitTicketForm()"
+            style="width:100%;background:var(--gold);color:var(--bg-base);
+            border:none;border-radius:8px;padding:13px 0;font-weight:700;
+            font-size:14px;letter-spacing:.5px;cursor:pointer;margin-top:4px;
+            transition:opacity 0.15s;">
+            Submit Support Ticket →
+          </button>
+
+          <div id="ticketFormStatus" style="display:none;margin-top:14px;
+            padding:12px;border-radius:8px;font-size:13px;text-align:center;">
           </div>
         </div>
       </div>
@@ -558,6 +626,96 @@ async function sendMessage() {
   }
 
   isLoading = false; updateSend();
+}
+
+async function submitTicketForm() {
+  const name = document.getElementById('ticketName').value.trim();
+  const email = document.getElementById('ticketEmail').value.trim();
+  const category = document.getElementById('ticketCategory').value;
+  const priority = document.getElementById('ticketPriority').value;
+  const description = document.getElementById('ticketDescription').value.trim();
+  const statusEl = document.getElementById('ticketFormStatus');
+  const btn = document.getElementById('submitTicketBtn');
+
+  // Validation
+  if (!name || !email || !category || !priority || !description) {
+    statusEl.style.display = 'block';
+    statusEl.style.background = 'rgba(239,68,68,0.12)';
+    statusEl.style.border = '1px solid rgba(239,68,68,0.3)';
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = 'Please fill in all fields before submitting.';
+    return;
+  }
+
+  btn.textContent = 'Submitting...';
+  btn.style.opacity = '0.6';
+  btn.disabled = true;
+
+  const ticketId = 'TKT-' + Math.random().toString(36).substr(2,6).toUpperCase();
+
+  const contactId = new URLSearchParams(window.location.search).get('contact_id') || '';
+
+  const payload = {
+    event: 'support.ticket.created',
+    source: 'coachg-support-portal',
+    timestamp: new Date().toISOString(),
+    contact_id: contactId,
+    contact: { firstName: name, email: email },
+    ticket: {
+      id: ticketId,
+      category: category,
+      priority: parseInt(priority),
+      description: description,
+      status: 'open'
+    }
+  };
+
+  try {
+    const res = await fetch('/api/support-webhook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      statusEl.style.display = 'block';
+      statusEl.style.background = 'rgba(34,197,94,0.12)';
+      statusEl.style.border = '1px solid rgba(34,197,94,0.3)';
+      statusEl.style.color = 'var(--green)';
+      statusEl.innerHTML = '✅ Ticket <strong>' + ticketId +
+        '</strong> submitted! Check your email for confirmation.';
+
+      // Update header badge
+      document.getElementById('ticketBadge').classList.add('visible');
+      document.getElementById('ticketBadgeId').textContent = ticketId;
+
+      // Reset form
+      document.getElementById('ticketName').value = '';
+      document.getElementById('ticketEmail').value = '';
+      document.getElementById('ticketCategory').value = '';
+      document.getElementById('ticketPriority').value = '';
+      document.getElementById('ticketDescription').value = '';
+
+      btn.textContent = 'Submit Another Ticket →';
+      btn.style.opacity = '1';
+      btn.disabled = false;
+
+    } else {
+      throw new Error(data.error || 'Submission failed');
+    }
+
+  } catch(err) {
+    statusEl.style.display = 'block';
+    statusEl.style.background = 'rgba(239,68,68,0.12)';
+    statusEl.style.border = '1px solid rgba(239,68,68,0.3)';
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = 'Error: ' + err.message + '. Please try again.';
+    btn.textContent = 'Submit Support Ticket →';
+    btn.style.opacity = '1';
+    btn.disabled = false;
+  }
 }
 </script>
 </body>
