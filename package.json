@@ -1,0 +1,15 @@
+{
+  "name": "coachg-support-portal",
+  "version": "1.0.0",
+  "description": "COACHG Support Center — AI triage + GHL webhook integration",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "devDependencies": {
+    "vercel": "^37.0.0"
+  }
+}

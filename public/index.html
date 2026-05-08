@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COACHG Support Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg-base: #07090f;
+    --bg-panel: #0d1220;
+    --bg-card: #131929;
+    --bg-input: #0f1525;
+    --border: #1a2240;
+    --border-hover: #2a3560;
+    --gold: #f0a500;
+    --gold-dim: rgba(240,165,0,0.15);
+    --blue: #3b7aff;
+    --blue-dim: rgba(59,122,255,0.15);
+    --green: #22c55e;
+    --red: #ef4444;
+    --text-primary: #e8eaf0;
+    --text-secondary: #8090b0;
+    --text-dim: #3c4460;
+    --text-muted: #5c6480;
+  }
+  html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg-base); color: var(--text-primary); overflow: hidden; }
+  button { cursor: pointer; font-family: inherit; }
+  textarea { font-family: inherit; }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .app { display: flex; flex-direction: column; height: 100vh; }
+  .header { background: var(--bg-panel); border-bottom: 1px solid var(--border); padding: 0 24px; height: 58px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .body { display: flex; flex: 1; overflow: hidden; }
+  .chat-panel { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .right-panel { width: 360px; flex-shrink: 0; border-left: 1px solid var(--border); display: flex; flex-direction: column; background: var(--bg-panel); }
+
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-mark { width: 36px; height: 36px; background: var(--gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--bg-base); letter-spacing: 1px; }
+  .logo-text { line-height: 1.2; }
+  .logo-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--gold); letter-spacing: 2px; }
+  .logo-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .status-badge { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .ticket-badge { background: var(--blue-dim); border: 1px solid rgba(59,122,255,0.3); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--blue); display: none; align-items: center; gap: 6px; }
+  .ticket-badge.visible { display: flex; }
+
+  .messages { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+  .msg-row { display: flex; gap: 10px; }
+  .msg-row.user { justify-content: flex-end; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue'; font-size: 14px; color: var(--bg-base); flex-shrink: 0; margin-top: 2px; }
+  .bubble { max-width: 68%; padding: 10px 14px; font-size: 14px; line-height: 1.65; border-radius: 18px; }
+  .bubble.bot { background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px 18px 18px 18px; color: var(--text-primary); }
+  .bubble.user { background: var(--blue); border-radius: 18px 18px 4px 18px; color: #fff; }
+  .bubble-action { margin-top: 10px; padding: 7px 11px; border-radius: 8px; font-size: 12px; display: flex; align-items: center; gap: 6px; }
+  .bubble-action.ticket { background: rgba(59,122,255,0.12); border: 1px solid rgba(59,122,255,0.25); color: var(--blue); }
+  .bubble-action.zoom { background: rgba(240,165,0,0.12); border: 1px solid rgba(240,165,0,0.25); color: var(--gold); }
+  .bubble-action.firing { opacity: .6; }
+
+  .typing-dots { display: flex; gap: 4px; align-items: center; padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px 18px 18px 18px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); animation: typing 1.4s infinite; }
+  .dot:nth-child(2) { animation-delay: .2s; }
+  .dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes typing { 0%,60%,100% { opacity:.3; transform:scale(.8); } 30% { opacity:1; transform:scale(1); } }
+
+  .quick-actions { padding: 0 24px 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .quick-btn { background: transparent; border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 12px; color: var(--text-muted); transition: all 0.15s; }
+  .quick-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  .input-area { padding: 12px 24px 20px; border-top: 1px solid var(--border); }
+  .input-row { display: flex; gap: 10px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 12px; padding: 8px 10px; align-items: flex-end; transition: border-color 0.15s; }
+  .input-row:focus-within { border-color: var(--border-hover); }
+  .input-row textarea { flex: 1; background: transparent; border: none; outline: none; resize: none; color: var(--text-primary); font-size: 14px; line-height: 1.5; max-height: 120px; overflow-y: auto; }
+  .input-row textarea::placeholder { color: var(--text-muted); }
+  .send-btn { width: 34px; height: 34px; border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; transition: background 0.2s; flex-shrink: 0; }
+  .send-btn.active { background: var(--gold); }
+  .send-btn.inactive { background: var(--border); }
+  .input-hint { text-align: center; font-size: 11px; color: var(--text-dim); margin-top: 8px; }
+
+  .tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .tab { flex: 1; padding: 14px 0; background: transparent; border: none; border-bottom: 2px solid transparent; font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: .5px; text-transform: uppercase; transition: all 0.15s; position: relative; }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .tab-badge { position: absolute; top: 10px; right: 10px; width: 6px; height: 6px; border-radius: 50%; background: var(--blue); display: none; }
+  .tab-badge.show { display: block; }
+  .tab-content { flex: 1; overflow-y: auto; padding: 20px; display: none; flex-direction: column; }
+  .tab-content.active { display: flex; }
+
+  .section-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; flex-shrink: 0; }
+  .status-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-card); border-radius: 8px; margin-bottom: 6px; font-size: 13px; }
+  .status-row .name { color: var(--text-secondary); }
+  .status-row .val { display: flex; align-items: center; gap: 6px; }
+  .dot-sm { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .ticket-card { background: var(--bg-card); border: 1px solid rgba(59,122,255,0.3); border-radius: 12px; padding: 16px; margin-top: 20px; }
+  .ticket-meta { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; font-size: 13px; color: var(--text-muted); }
+  .ticket-meta span { color: var(--text-secondary); }
+  .ticket-footer { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
+
+  .empty-state { text-align: center; padding: 50px 20px; color: var(--text-dim); flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .empty-icon { font-size: 36px; margin-bottom: 14px; opacity: .4; }
+  .empty-state p { font-size: 12px; line-height: 1.8; }
+
+  .payload-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-shrink: 0; }
+  .payload-route { font-size: 10px; color: var(--text-muted); font-family: monospace; }
+  .fired-badge { background: rgba(34,197,94,0.12); color: var(--green); padding: 3px 8px; border-radius: 5px; font-size: 10px; font-family: monospace; border: 1px solid rgba(34,197,94,0.25); }
+  .pending-badge { background: rgba(240,165,0,0.12); color: var(--gold); padding: 3px 8px; border-radius: 5px; font-size: 10px; font-family: monospace; border: 1px solid rgba(240,165,0,0.25); }
+  .code-block { background: #060910; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 16px; overflow: auto; flex-shrink: 0; }
+  .code-block pre { font-size: 11px; font-family: monospace; color: #7dd3fc; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+  .workflow-item { background: var(--bg-card); border-radius: 6px; padding: 7px 10px; margin-bottom: 5px; font-size: 12px; color: var(--text-secondary); line-height: 1.4; flex-shrink: 0; }
+
+  .zoom-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; flex-shrink: 0; }
+  .zoom-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+  .zoom-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 18px; }
+  .zoom-btn { width: 100%; background: var(--gold); color: var(--bg-base); border: none; border-radius: 8px; padding: 13px 0; font-weight: 700; font-size: 14px; letter-spacing: .5px; transition: opacity 0.15s; }
+  .zoom-btn:hover { opacity: .9; }
+  .zoom-hint { text-align: center; font-size: 11px; color: var(--text-dim); margin-top: 8px; }
+  .zoom-meta { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .zoom-meta-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
+
+  .arch-note { background: rgba(240,165,0,0.06); border: 1px solid rgba(240,165,0,0.2); border-radius: 10px; padding: 14px; margin-top: 16px; flex-shrink: 0; }
+  .arch-note-title { font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+  .arch-step { font-size: 12px; color: var(--text-muted); padding: 3px 0; display: flex; gap: 8px; line-height: 1.5; }
+  .arch-arrow { color: var(--gold); flex-shrink: 0; }
+
+  .error-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a0a0a; border: 1px solid rgba(239,68,68,0.4); border-radius: 10px; padding: 10px 18px; font-size: 13px; color: #fca5a5; display: none; z-index: 100; white-space: nowrap; }
+  .error-toast.show { display: block; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="header">
+    <div class="logo">
+      <div class="logo-mark">CG</div>
+      <div class="logo-text">
+        <div class="logo-title">COACHG</div>
+        <div class="logo-sub">Support Center</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="status-badge">
+        <span class="status-dot"></span>
+        AI Online
+      </div>
+      <div class="ticket-badge" id="ticketBadge">
+        <span class="status-dot" style="background:var(--blue)"></span>
+        <span id="ticketBadgeId">TKT-XXXXXX</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="body">
+
+    <!-- CHAT PANEL -->
+    <div class="chat-panel">
+      <div class="messages" id="messages">
+        <div class="msg-row">
+          <div class="avatar">G</div>
+          <div class="bubble bot">Hey! I'm Coach G Support 🏈 What can I help you with today? I can answer platform questions, troubleshoot issues, or connect you with the team.</div>
+        </div>
+      </div>
+
+      <div class="quick-actions" id="quickActions">
+        <button class="quick-btn" onclick="quickSend('My AI bot stopped responding')">AI bot not responding</button>
+        <button class="quick-btn" onclick="quickSend('I can\'t find a contact in my CRM')">Can't find a contact</button>
+        <button class="quick-btn" onclick="quickSend('How do I set up a new workflow?')">Workflow setup help</button>
+        <button class="quick-btn" onclick="quickSend('I have a billing question')">Billing question</button>
+      </div>
+
+      <div class="input-area">
+        <div class="input-row">
+          <textarea id="msgInput" rows="1" placeholder="Type your question..." onkeydown="handleKey(event)" oninput="autoResize(this); updateSend();"></textarea>
+          <button class="send-btn inactive" id="sendBtn" onclick="sendMessage()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" id="sendIcon">
+              <path d="M22 2L11 13" stroke="#5c6480" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#5c6480" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="input-hint">Shift+Enter for new line &nbsp;·&nbsp; Powered by COACHG Revenue OS</div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('status', this)">Status</button>
+        <button class="tab" onclick="switchTab('payload', this)" id="tabPayload">
+          GHL Payload
+          <span class="tab-badge" id="payloadBadge"></span>
+        </button>
+        <button class="tab" onclick="switchTab('zoom', this)" id="tabZoom">
+          Book Zoom
+          <span class="tab-badge" id="zoomBadge"></span>
+        </button>
+      </div>
+
+      <!-- STATUS -->
+      <div class="tab-content active" id="tabContent-status">
+        <div class="section-label">System Status</div>
+        <div class="status-row"><span class="name">AI Support Bot</span><div class="val"><span class="dot-sm" style="background:var(--green)"></span><span style="font-size:12px;color:var(--green)">Online</span></div></div>
+        <div class="status-row"><span class="name">GHL Pipeline</span><div class="val"><span class="dot-sm" style="background:var(--green)"></span><span style="font-size:12px;color:var(--green)">Connected</span></div></div>
+        <div class="status-row"><span class="name">Zoom Booking</span><div class="val"><span class="dot-sm" style="background:var(--green)"></span><span style="font-size:12px;color:var(--green)">Available</span></div></div>
+        <div class="status-row" id="ticketSystemRow"><span class="name">Ticket System</span><div class="val"><span class="dot-sm" style="background:var(--text-muted)"></span><span style="font-size:12px;color:var(--text-muted)">Standby</span></div></div>
+
+        <div id="activeTicketCard" style="display:none;" class="ticket-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <span style="font-size:14px;font-weight:700;color:var(--blue)" id="ticketIdDisplay">TKT-XXXXXX</span>
+            <span style="background:var(--blue-dim);color:var(--blue);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;">Open</span>
+          </div>
+          <div class="ticket-meta">
+            <div>Category: <span id="ticketCatDisplay">—</span></div>
+            <div>Priority: <span id="ticketPriDisplay">—</span></div>
+          </div>
+          <div class="ticket-footer">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="22,4 12,14.01 9,11.01" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            GHL webhook fired · Pipeline updated
+          </div>
+        </div>
+
+        <div id="statusEmpty" class="empty-state">
+          <div class="empty-icon">🏈</div>
+          <p>Chat with the AI to get help.<br>Tickets appear here when created.</p>
+        </div>
+      </div>
+
+      <!-- GHL PAYLOAD -->
+      <div class="tab-content" id="tabContent-payload">
+        <div id="payloadEmpty" class="empty-state">
+          <div class="empty-icon">⚡</div>
+          <p>GHL webhook payload appears here<br>when a ticket is created or<br>Zoom is requested in chat.</p>
+        </div>
+        <div id="payloadContent" style="display:none;flex-direction:column;">
+          <div class="payload-header">
+            <span class="payload-route">App → /api/support-webhook → GHL</span>
+            <span class="fired-badge" id="firedBadge">FIRED</span>
+          </div>
+          <div class="code-block"><pre id="payloadJson"></pre></div>
+          <div class="section-label">Workflow Actions Triggered</div>
+          <div id="workflowActions"></div>
+          <div class="arch-note">
+            <div class="arch-note-title">⚙ Data Flow</div>
+            <div class="arch-step"><span class="arch-arrow">1</span><span>Browser POSTs to <code style="color:var(--gold);font-size:11px;">/api/support-webhook</code> (Vercel function)</span></div>
+            <div class="arch-step"><span class="arch-arrow">2</span><span>Function validates origin, rate limit, payload shape</span></div>
+            <div class="arch-step"><span class="arch-arrow">3</span><span>Forwards server-to-server to <code style="color:var(--gold);font-size:11px;">GHL_WEBHOOK_URL</code> env var</span></div>
+            <div class="arch-step"><span class="arch-arrow">4</span><span>GHL workflow fires: opportunity created, tags applied, SMS sent</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ZOOM -->
+      <div class="tab-content" id="tabContent-zoom">
+        <div class="zoom-card">
+          <div class="zoom-title">30-Min Support Call</div>
+          <div class="zoom-desc">Live screen share with the COACHG support team. Book a slot and get your issue resolved in real time.</div>
+          <button class="zoom-btn" onclick="handleZoomClick()">📅 Book Zoom Call →</button>
+          <div class="zoom-hint">Opens your GHL booking calendar</div>
+          <div class="zoom-meta">
+            <div class="zoom-meta-row">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="var(--text-muted)" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="2" x2="8" y2="6" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke="var(--text-muted)" stroke-width="2"/></svg>
+              M–F · 9am–5pm CST
+            </div>
+            <div class="zoom-meta-row">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="var(--text-muted)" stroke-width="2"/><polyline points="12,6 12,12 16,14" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              30-minute sessions
+            </div>
+          </div>
+        </div>
+        <div id="zoomWorkflow" style="display:none;">
+          <div class="section-label">GHL Workflow Triggered</div>
+          <div id="zoomWorkflowActions"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="error-toast" id="errorToast"></div>
+
+<script>
+// ─── STATE ─────────────────────────────────────────────────────────────────
+let chatHistory = [];
+let isLoading = false;
+
+// ─── TABS ──────────────────────────────────────────────────────────────────
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tabContent-' + tab).classList.add('active');
+}
+
+// ─── HELPERS ───────────────────────────────────────────────────────────────
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function updateSend() {
+  const val = document.getElementById('msgInput').value.trim();
+  const btn = document.getElementById('sendBtn');
+  const paths = document.getElementById('sendIcon').querySelectorAll('path');
+  if (val && !isLoading) {
+    btn.className = 'send-btn active';
+    paths.forEach(p => p.setAttribute('stroke', '#07090f'));
+  } else {
+    btn.className = 'send-btn inactive';
+    paths.forEach(p => p.setAttribute('stroke', '#5c6480'));
+  }
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function quickSend(text) {
+  document.getElementById('quickActions').style.display = 'none';
+  document.getElementById('msgInput').value = text;
+  sendMessage();
+}
+
+function scrollBottom() {
+  const msgs = document.getElementById('messages');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showError(msg) {
+  const toast = document.getElementById('errorToast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 4000);
+}
+
+// ─── RENDER MESSAGES ───────────────────────────────────────────────────────
+function addMessage(role, text, action) {
+  const msgs = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = 'msg-row ' + (role === 'user' ? 'user' : '');
+  if (role === 'assistant') {
+    let actionHTML = '';
+    if (action?.action === 'create_ticket') actionHTML = `<div class="bubble-action ticket">🎫 Ticket created — firing to GHL...</div>`;
+    if (action?.action === 'book_zoom') actionHTML = `<div class="bubble-action zoom">📅 Zoom escalation — firing to GHL...</div>`;
+    row.innerHTML = `<div class="avatar">G</div><div class="bubble bot">${escHtml(text)}${actionHTML}</div>`;
+  } else {
+    row.innerHTML = `<div class="bubble user">${escHtml(text)}</div>`;
+  }
+  msgs.appendChild(row);
+  scrollBottom();
+  return row;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('messages');
+  const row = document.createElement('div');
+  row.className = 'msg-row'; row.id = 'typing-row';
+  row.innerHTML = `<div class="avatar">G</div><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  msgs.appendChild(row); scrollBottom();
+}
+
+function removeTyping() {
+  document.getElementById('typing-row')?.remove();
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+// ─── ACTION PARSING ────────────────────────────────────────────────────────
+function parseAction(text) {
+  const match = text.match(/\{"action":[^}]+\}/);
+  if (match) { try { return JSON.parse(match[0]); } catch(e) {} }
+  return null;
+}
+
+function cleanText(text) {
+  return text.replace(/\{"action":[^}]+\}/, '').trim();
+}
+
+// ─── GHL PAYLOAD BUILDER ───────────────────────────────────────────────────
+function buildGHLPayload(action) {
+  const base = {
+    timestamp: new Date().toISOString(),
+    source: 'coachg-support-portal',
+    event: action.action === 'create_ticket' ? 'support.ticket.created' : 'support.zoom.requested',
+    contact: { firstName: '{{contact.first_name}}', email: '{{contact.email}}', phone: '{{contact.phone}}' }
+  };
+
+  if (action.action === 'create_ticket') {
+    const tid = 'TKT-' + Math.random().toString(36).substr(2,6).toUpperCase();
+    return {
+      payload: { ...base, ticket: { id: tid, category: action.category, priority: action.priority, description: action.description, status: 'open' } },
+      ticketId: tid,
+      triggers: [
+        '✅ Create Opportunity → "COACHG Support Tickets" pipeline',
+        '✅ Stage: New Ticket',
+        '✅ Add Tags: support-open, support-' + (action.category||'').toLowerCase().replace(/[/\s]+/g,'-'),
+        '✅ Set Field: support-issue-category = ' + action.category,
+        '✅ Set Field: support-priority = ' + action.priority,
+        '✅ Internal notification → support team',
+        '✅ SMS → agent: ticket confirmation'
+      ]
+    };
+  }
+
+  return {
+    payload: { ...base, escalation: { reason: action.reason, urgency: 'high' } },
+    ticketId: null,
+    triggers: [
+      '✅ Add Tags: support-zoom-scheduled, support-escalated',
+      '✅ Move Opportunity → Stage: Zoom Scheduled',
+      '✅ SMS → agent: Zoom booking link',
+      '✅ Create task → support team: Zoom assignment',
+      '✅ Internal escalation alert'
+    ]
+  };
+}
+
+// ─── FIRE GHL WEBHOOK ──────────────────────────────────────────────────────
+// Posts to /api/support-webhook (Vercel serverless function)
+// The function validates + forwards to GHL_WEBHOOK_URL env var server-side.
+async function fireGHLWebhook(payload) {
+  try {
+    const res = await fetch('/api/support-webhook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      console.error('[webhook] Error:', data.error);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error('[webhook] Network error:', err.message);
+    return false;
+  }
+}
+
+// ─── UI UPDATES ────────────────────────────────────────────────────────────
+function updateTicketStatus(ticketId, category, priority) {
+  document.getElementById('ticketBadge').classList.add('visible');
+  document.getElementById('ticketBadgeId').textContent = ticketId;
+  document.getElementById('ticketIdDisplay').textContent = ticketId;
+  document.getElementById('ticketCatDisplay').textContent = category;
+  const priColors = { 1: 'var(--green)', 2: 'var(--gold)', 3: 'var(--red)' };
+  const priLabels = { 1: 'Low — Can wait', 2: 'Medium — This week', 3: 'High — Today' };
+  const el = document.getElementById('ticketPriDisplay');
+  el.textContent = priLabels[priority] || priority;
+  el.style.color = priColors[priority] || 'var(--text-secondary)';
+  document.getElementById('ticketSystemRow').innerHTML = `<span class="name">Ticket System</span><div class="val"><span class="dot-sm" style="background:var(--blue)"></span><span style="font-size:12px;color:var(--blue)">Active</span></div>`;
+  document.getElementById('activeTicketCard').style.display = 'block';
+  document.getElementById('statusEmpty').style.display = 'none';
+}
+
+function renderPayload(ghlData, fired) {
+  document.getElementById('payloadEmpty').style.display = 'none';
+  const content = document.getElementById('payloadContent');
+  content.style.display = 'flex';
+  content.style.flexDirection = 'column';
+  document.getElementById('payloadJson').textContent = JSON.stringify(ghlData.payload, null, 2);
+  document.getElementById('firedBadge').className = fired ? 'fired-badge' : 'pending-badge';
+  document.getElementById('firedBadge').textContent = fired ? 'FIRED' : 'SENDING...';
+  const wa = document.getElementById('workflowActions');
+  wa.innerHTML = '';
+  ghlData.triggers.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'workflow-item'; d.textContent = t; wa.appendChild(d);
+  });
+  document.getElementById('payloadBadge').classList.add('show');
+}
+
+function renderZoomWorkflow(ghlData) {
+  document.getElementById('zoomWorkflow').style.display = 'block';
+  const za = document.getElementById('zoomWorkflowActions');
+  za.innerHTML = '';
+  ghlData.triggers.forEach(t => {
+    const d = document.createElement('div');
+    d.className = 'workflow-item'; d.textContent = t; za.appendChild(d);
+  });
+  document.getElementById('zoomBadge').classList.add('show');
+}
+
+function handleZoomClick() {
+  // Replace ZOOM_CALENDAR_URL with your GHL support Zoom calendar link
+  const url = 'ZOOM_CALENDAR_URL';
+  if (url === 'ZOOM_CALENDAR_URL') {
+    alert('Replace ZOOM_CALENDAR_URL in index.html with your GHL support calendar link.');
+    return;
+  }
+  window.open(url, '_blank');
+}
+
+// ─── SEND MESSAGE ──────────────────────────────────────────────────────────
+async function sendMessage() {
+  const input = document.getElementById('msgInput');
+  const text = input.value.trim();
+  if (!text || isLoading) return;
+
+  document.getElementById('quickActions').style.display = 'none';
+  input.value = ''; input.style.height = 'auto';
+  isLoading = true; updateSend();
+
+  addMessage('user', text);
+  chatHistory.push({ role: 'user', content: text });
+  showTyping();
+
+  try {
+    // Calls /api/chat — Vercel serverless function that proxies to Anthropic
+    // ANTHROPIC_API_KEY lives in Vercel env vars, never exposed to browser
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: chatHistory })
+    });
+
+    const data = await res.json();
+    if (!res.ok) { throw new Error(data.error || 'API error'); }
+
+    const rawText = data.content?.[0]?.text || 'I ran into an issue. Please try again.';
+    const action = parseAction(rawText);
+    const cleanedText = cleanText(rawText);
+
+    chatHistory.push({ role: 'assistant', content: rawText });
+    removeTyping();
+    addMessage('assistant', cleanedText, action);
+
+    if (action) {
+      const ghlData = buildGHLPayload(action);
+
+      // Show payload immediately (optimistic)
+      renderPayload(ghlData, false);
+
+      // Fire to GHL via /api/support-webhook
+      const fired = await fireGHLWebhook(ghlData.payload);
+      renderPayload(ghlData, fired);
+
+      if (action.action === 'create_ticket') {
+        updateTicketStatus(ghlData.ticketId, action.category, action.priority);
+        switchTab('payload', document.getElementById('tabPayload'));
+      }
+      if (action.action === 'book_zoom') {
+        renderZoomWorkflow(ghlData);
+        switchTab('zoom', document.getElementById('tabZoom'));
+      }
+    }
+
+  } catch (err) {
+    removeTyping();
+    addMessage('assistant', 'I ran into a connection issue. Please try again in a moment.');
+    showError('Connection error: ' + err.message);
+  }
+
+  isLoading = false; updateSend();
+}
+</script>
+</body>
+</html>
