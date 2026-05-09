@@ -767,14 +767,17 @@ async function submitTicketForm() {
     source: 'coachg-support-portal',
     timestamp: new Date().toISOString(),
     contact: { firstName: name, email: email },
-    account: { id: accountId, name: accountName },
+    account: {
+      id: localStorage.getItem('accountId') || '',
+      name: localStorage.getItem('accountName') || ''
+    },
     ticket: {
       id: ticketId,
       category: category,
       priority: parseInt(priority),
       description: description,
       status: 'open',
-      screenshot_url: screenshotUrl
+      screenshot_url: screenshotUrl || ''
     }
   };
 

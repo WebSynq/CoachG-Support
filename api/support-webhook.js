@@ -78,6 +78,10 @@ export default async function handler(req, res) {
     if (!ticket.description || typeof ticket.description !== 'string' || ticket.description.length > 1000) {
       return res.status(400).json({ error: 'Invalid ticket description' });
     }
+    // contact_id is optional — log warning but allow through
+    if (body.contact_id == null || body.contact_id === '') {
+      console.warn('[webhook] contact_id missing or empty — proceeding anyway');
+    }
   }
 
   // 5. Forward to GHL — server-to-server only
