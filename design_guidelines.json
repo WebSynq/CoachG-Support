@@ -1,0 +1,76 @@
+{
+  "theme": "Dark",
+  "archetype": "Archetype 5 (Jewel & Luxury) x Archetype 2 (Performance Pro)",
+  "emotional_tone": "Commanding, professional, high-end, alive, responsive. A digital executive suite meets a tactical locker room.",
+  "technical_constraints": {
+    "architecture": "Single static HTML file",
+    "stack": "Vanilla HTML, CSS, JavaScript",
+    "libraries_allowed": [
+      "Tailwind CSS via CDN (<script src=\"https://cdn.tailwindcss.com\"></script>)",
+      "Google Fonts (Bebas Neue & DM Sans)",
+      "Lucide Icons (via CDN or SVG)"
+    ]
+  },
+  "colors": {
+    "background_base": "#04070D",
+    "background_surface": "#0A101D",
+    "background_surface_elevated": "#121A2F",
+    "accent_primary": "#F0A500",
+    "accent_glow": "rgba(240, 165, 0, 0.4)",
+    "text_primary": "#FFFFFF",
+    "text_secondary": "#8B9BB4",
+    "border_subtle": "rgba(255, 255, 255, 0.08)",
+    "border_accent": "rgba(240, 165, 0, 0.3)"
+  },
+  "typography": {
+    "heading_font": "Bebas Neue, sans-serif",
+    "body_font": "DM Sans, sans-serif",
+    "rules": [
+      "Headings (Bebas Neue): MUST be uppercase with tracking-wide (letter-spacing: 0.05em) to enforce the Coach personality.",
+      "Body (DM Sans): Use leading-relaxed (1.6) for chat legibility to prevent fatigue.",
+      "CRITICAL: Do not use default sans or Inter."
+    ]
+  },
+  "layout_and_spacing": {
+    "global_structure": "CSS Grid or Tailwind Grid. lg:grid-cols-[1fr_400px]. Left side is Chat, Right side is Sidebar Panel.",
+    "spacing_scale": "Generous internal padding (p-6 to p-8) for surfaces to avoid claustrophobia.",
+    "iframe_considerations": "Height locked to 100vh. Body gets overflow-hidden. Left and right panes get overflow-y-auto to scroll independently. Hide default scrollbars for a premium feel (::-webkit-scrollbar { width: 0px; })."
+  },
+  "surfaces_and_textures": {
+    "background": "Simulate depth with a CSS radial gradient on the body: radial-gradient(circle at 0% 0%, #0A101D 0%, #04070D 100%). No flat backgrounds.",
+    "glassmorphism_panels": "Use backdrop-blur-xl bg-[#0A101D]/70 with a 1px solid border of white/10 (or border-[#F0A500]/20 for active states) to create the 'crystal' effect.",
+    "card_hover": "Interactive cards lift (-translate-y-0.5) and cast a subtle gold ambient shadow (shadow-[0_0_20px_rgba(240,165,0,0.15)])."
+  },
+  "components": {
+    "header": {
+      "style": "Glassmorphism sticky header. Z-index 50. CoachG logo text in Bebas Neue.",
+      "ai_status_indicator": "Small circular dot (bg-[#F0A500]) with Tailwind's 'animate-ping' (or custom CSS keyframes) on an absolute pseudo-element to simulate a heartbeat/online pulse."
+    },
+    "chat_area": {
+      "user_bubble": "Sleek, subtle gold gradient (bg-gradient-to-br from-[#D99500] to-[#B37A00]), text-white, border-none, rounded-2xl rounded-tr-sm.",
+      "ai_bubble": "Matte dark navy (bg-[#121A2F]), white text, bold left accent (border-l-2 border-[#F0A500]), rounded-2xl rounded-tl-sm.",
+      "quick_actions": "Pill-shaped tags. bg-transparent border border-[#F0A500]/30 text-[#F0A500]. Hover: bg-[#F0A500]/10 border-[#F0A500].",
+      "chat_input": "Floating dock. Glassmorphism bg. Input area has focus-within:ring-1 focus-within:ring-[#F0A500] focus-within:bg-[#121A2F]. Includes paperclip icon for screenshots.",
+      "typing_indicator": "Three small dots pulsing sequentially in gold."
+    },
+    "sidebar": {
+      "tabs": "Tab list container with a bottom border (border-white/10). Active tab: text-[#F0A500] border-b-2 border-[#F0A500]. Inactive tab: text-[#8B9BB4].",
+      "form_inputs": "Pure HTML forms. Inputs have bg-[#04070D] (darker than surface), border border-white/10. Focus state: border-[#F0A500] shadow-[0_0_0_2px_rgba(240,165,0,0.2)]. No native blue outline.",
+      "ticket_success": "State showing green/gold checkmark, fading in, displaying Ticket ID."
+    }
+  },
+  "motion_and_interaction": {
+    "transitions": "All hover and focus states must have 'transition-all duration-300 ease-out'.",
+    "form_validation": "Use vanilla JS to handle form state. Errors show as subtle red/gold toast notifications floating at top right or inline below inputs."
+  },
+  "testing_attributes": {
+    "requirement": "All interactive elements MUST include data-testid attributes.",
+    "examples": [
+      "data-testid='chat-input-field'",
+      "data-testid='chat-submit-button'",
+      "data-testid='tab-submit-ticket'",
+      "data-testid='ticket-form-submit'"
+    ]
+  },
+  "instructions_to_main_agent": "Implement this strictly as a SINGLE HTML FILE. Use Tailwind CSS via CDN. Do not use React or external JS frameworks. Write all state logic (tabs, chat DOM injection, form localStorage saving, Webhook fetch) in a <script> tag at the bottom of the body. Implement a sleek, custom scrollbar using vanilla CSS. Embed Lucide icons using the CDN script or raw inline SVGs."
+}
