@@ -1,353 +1,468 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>COACHG Support Center</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          base: '#04070D',
+          surface: '#0A101D',
+          elev: '#121A2F',
+          gold: '#F0A500',
+          'gold-soft': '#D99500',
+          'gold-deep': '#B37A00',
+          ink: '#FFFFFF',
+          muted: '#8B9BB4',
+          dim: '#5C6480',
+        },
+        fontFamily: {
+          display: ['"Bebas Neue"', 'sans-serif'],
+          sans: ['"DM Sans"', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'monospace'],
+        },
+        boxShadow: {
+          'gold-soft': '0 0 24px rgba(240,165,0,0.18)',
+          'gold-ring': '0 0 0 2px rgba(240,165,0,0.22)',
+        },
+      },
+    },
+  };
+</script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg-base: #07090f;
-    --bg-panel: #0d1220;
-    --bg-card: #131929;
-    --bg-input: #0f1525;
-    --border: #1a2240;
-    --border-hover: #2a3560;
-    --gold: #f0a500;
-    --gold-dim: rgba(240,165,0,0.15);
-    --blue: #3b7aff;
-    --blue-dim: rgba(59,122,255,0.15);
-    --green: #22c55e;
-    --red: #ef4444;
-    --text-primary: #e8eaf0;
-    --text-secondary: #8090b0;
-    --text-dim: #3c4460;
-    --text-muted: #5c6480;
+    --base: #04070D;
+    --surface: #0A101D;
+    --elev: #121A2F;
+    --gold: #F0A500;
+    --gold-soft: #D99500;
+    --ink: #FFFFFF;
+    --muted: #8B9BB4;
+    --border: rgba(255,255,255,0.08);
   }
-  html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg-base); color: var(--text-primary); overflow: hidden; }
-  button { cursor: pointer; font-family: inherit; }
-  textarea { font-family: inherit; }
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-  .app { display: flex; flex-direction: column; height: 100vh; }
-  .header { background: var(--bg-panel); border-bottom: 1px solid var(--border); padding: 0 24px; height: 58px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-  .body { display: flex; flex: 1; overflow: hidden; }
-  .chat-panel { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-  .right-panel { width: 360px; flex-shrink: 0; border-left: 1px solid var(--border); display: flex; flex-direction: column; background: var(--bg-panel); }
-
-  .logo { display: flex; align-items: center; gap: 12px; }
-  .logo-mark { width: 36px; height: 36px; background: var(--gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--bg-base); letter-spacing: 1px; }
-  .logo-text { line-height: 1.2; }
-  .logo-title { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--gold); letter-spacing: 2px; }
-  .logo-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
-  .header-right { display: flex; align-items: center; gap: 10px; }
-  .status-badge { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
-  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
-  .ticket-badge { background: var(--blue-dim); border: 1px solid rgba(59,122,255,0.3); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--blue); display: none; align-items: center; gap: 6px; }
-  .ticket-badge.visible { display: flex; }
-
-  .messages { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
-  .msg-row { display: flex; gap: 10px; }
-  .msg-row.user { justify-content: flex-end; }
-  .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue'; font-size: 14px; color: var(--bg-base); flex-shrink: 0; margin-top: 2px; }
-  .bubble { max-width: 68%; padding: 10px 14px; font-size: 14px; line-height: 1.65; border-radius: 18px; }
-  .bubble.bot { background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px 18px 18px 18px; color: var(--text-primary); }
-  .bubble.user { background: var(--blue); border-radius: 18px 18px 4px 18px; color: #fff; }
-  .bubble-action { margin-top: 10px; padding: 7px 11px; border-radius: 8px; font-size: 12px; display: flex; align-items: center; gap: 6px; }
-  .bubble-action.ticket { background: rgba(59,122,255,0.12); border: 1px solid rgba(59,122,255,0.25); color: var(--blue); }
-  .bubble-action.zoom { background: rgba(240,165,0,0.12); border: 1px solid rgba(240,165,0,0.25); color: var(--gold); }
-  .bubble-action.firing { opacity: .6; }
-
-  .typing-dots { display: flex; gap: 4px; align-items: center; padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px 18px 18px 18px; }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); animation: typing 1.4s infinite; }
-  .dot:nth-child(2) { animation-delay: .2s; }
-  .dot:nth-child(3) { animation-delay: .4s; }
-  @keyframes typing { 0%,60%,100% { opacity:.3; transform:scale(.8); } 30% { opacity:1; transform:scale(1); } }
-
-  .quick-actions { padding: 0 24px 14px; display: flex; flex-wrap: wrap; gap: 8px; }
-  .quick-btn { background: transparent; border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 12px; color: var(--text-muted); transition: all 0.15s; }
-  .quick-btn:hover { border-color: var(--gold); color: var(--gold); }
-
-  .input-area { padding: 12px 24px 20px; border-top: 1px solid var(--border); }
-  .input-row { display: flex; gap: 10px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 12px; padding: 8px 10px; align-items: flex-end; transition: border-color 0.15s; }
-  .input-row:focus-within { border-color: var(--border-hover); }
-  .input-row textarea { flex: 1; background: transparent; border: none; outline: none; resize: none; color: var(--text-primary); font-size: 14px; line-height: 1.5; max-height: 120px; overflow-y: auto; }
-  .input-row textarea::placeholder { color: var(--text-muted); }
-  .send-btn { width: 34px; height: 34px; border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; transition: background 0.2s; flex-shrink: 0; }
-  .send-btn.active { background: var(--gold); }
-  .send-btn.inactive { background: var(--border); }
-  .input-hint { text-align: center; font-size: 11px; color: var(--text-dim); margin-top: 8px; }
-
-  .tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-  .tab { flex: 1; padding: 18px 0; background: transparent; border: none; border-bottom: 2px solid transparent; font-size: 14px; font-weight: 700; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; transition: all 0.15s; position: relative; cursor: pointer; }
-  .tab:hover { color: var(--text-primary); }
-  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
-  .tab-badge { position: absolute; top: 10px; right: 10px; width: 6px; height: 6px; border-radius: 50%; background: var(--blue); display: none; }
-  .tab-badge.show { display: block; }
-  .tab-content { flex: 1; overflow-y: auto; padding: 20px; display: none; flex-direction: column; }
-  .tab-content.active { display: flex; }
-
-  .section-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; flex-shrink: 0; }
-  .status-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-card); border-radius: 8px; margin-bottom: 6px; font-size: 13px; }
-  .status-row .name { color: var(--text-secondary); }
-  .status-row .val { display: flex; align-items: center; gap: 6px; }
-  .dot-sm { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-
-  .ticket-card { background: var(--bg-card); border: 1px solid rgba(59,122,255,0.3); border-radius: 12px; padding: 16px; margin-top: 20px; }
-  .ticket-meta { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; font-size: 13px; color: var(--text-muted); }
-  .ticket-meta span { color: var(--text-secondary); }
-  .ticket-footer { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
-
-  .empty-state { text-align: center; padding: 50px 20px; color: var(--text-dim); flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-  .empty-icon { font-size: 36px; margin-bottom: 14px; opacity: .4; }
-  .empty-state p { font-size: 12px; line-height: 1.8; }
-
-  .payload-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-shrink: 0; }
-  .payload-route { font-size: 10px; color: var(--text-muted); font-family: monospace; }
-  .fired-badge { background: rgba(34,197,94,0.12); color: var(--green); padding: 3px 8px; border-radius: 5px; font-size: 10px; font-family: monospace; border: 1px solid rgba(34,197,94,0.25); }
-  .pending-badge { background: rgba(240,165,0,0.12); color: var(--gold); padding: 3px 8px; border-radius: 5px; font-size: 10px; font-family: monospace; border: 1px solid rgba(240,165,0,0.25); }
-  .code-block { background: #060910; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 16px; overflow: auto; flex-shrink: 0; }
-  .code-block pre { font-size: 11px; font-family: monospace; color: #7dd3fc; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
-  .workflow-item { background: var(--bg-card); border-radius: 6px; padding: 7px 10px; margin-bottom: 5px; font-size: 12px; color: var(--text-secondary); line-height: 1.4; flex-shrink: 0; }
-
-  .zoom-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; flex-shrink: 0; }
-  .zoom-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
-  .zoom-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.65; margin-bottom: 18px; }
-  .zoom-btn { width: 100%; background: var(--gold); color: var(--bg-base); border: none; border-radius: 8px; padding: 13px 0; font-weight: 700; font-size: 14px; letter-spacing: .5px; transition: opacity 0.15s; }
-  .zoom-btn:hover { opacity: .9; }
-  .zoom-hint { text-align: center; font-size: 11px; color: var(--text-dim); margin-top: 8px; }
-  .zoom-meta { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
-  .zoom-meta-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
-
-  .arch-note { background: rgba(240,165,0,0.06); border: 1px solid rgba(240,165,0,0.2); border-radius: 10px; padding: 14px; margin-top: 16px; flex-shrink: 0; }
-  .arch-note-title { font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
-  .arch-step { font-size: 12px; color: var(--text-muted); padding: 3px 0; display: flex; gap: 8px; line-height: 1.5; }
-  .arch-arrow { color: var(--gold); flex-shrink: 0; }
-
-  .error-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1a0a0a; border: 1px solid rgba(239,68,68,0.4); border-radius: 10px; padding: 10px 18px; font-size: 13px; color: #fca5a5; display: none; z-index: 100; white-space: nowrap; }
-  .error-toast.show { display: block; }
-
-  .form-group {
-    margin-bottom: 14px;
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    height: 100%;
+    background: var(--base);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
   }
-  .form-label {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 6px;
+  /* Immersive ambient backdrop — layered radial gradients + faint grid */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(900px 600px at 0% 0%, rgba(240,165,0,0.08) 0%, transparent 60%),
+      radial-gradient(700px 500px at 100% 100%, rgba(59,122,255,0.05) 0%, transparent 60%),
+      radial-gradient(1200px 800px at 50% -10%, #0A101D 0%, #04070D 70%);
+    pointer-events: none;
+    z-index: 0;
   }
-  input[type="text"], input[type="email"], select, textarea {
-    width: 100%;
-    background: var(--bg-input);
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .glass {
+    background: rgba(10,16,29,0.62);
+    backdrop-filter: blur(18px) saturate(120%);
+    -webkit-backdrop-filter: blur(18px) saturate(120%);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 13px;
-    color: var(--text-primary);
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.15s;
-    box-sizing: border-box;
   }
-  input[type="text"]:focus, input[type="email"]:focus,
-  select:focus, textarea:focus {
-    border-color: var(--gold);
-  }
-  select option { background: var(--bg-panel); }
-  textarea { resize: vertical; min-height: 80px; }
+  .scroll-clean::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scroll-clean::-webkit-scrollbar-track { background: transparent; }
+  .scroll-clean::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 4px; }
+  .scroll-clean::-webkit-scrollbar-thumb:hover { background: rgba(240,165,0,0.3); }
+  textarea, input, select { font-family: inherit; }
+  textarea:focus, input:focus, select:focus { outline: none; }
 
-  .acct-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px 12px;
-    margin-bottom: 14px;
+  /* Heartbeat dot */
+  .pulse-dot {
+    position: relative;
+    width: 8px; height: 8px; border-radius: 999px;
+    background: var(--gold);
+    box-shadow: 0 0 0 0 rgba(240,165,0,0.7);
+    animation: pulseRing 1.8s ease-out infinite;
   }
-  .acct-grid .form-group {
-    margin-bottom: 0;
+  @keyframes pulseRing {
+    0% { box-shadow: 0 0 0 0 rgba(240,165,0,0.55); }
+    70% { box-shadow: 0 0 0 10px rgba(240,165,0,0); }
+    100% { box-shadow: 0 0 0 0 rgba(240,165,0,0); }
   }
-  #ticketAttachBtn:hover {
-    border-color: var(--gold);
+
+  /* Typing dots */
+  .typing { display: inline-flex; gap: 4px; align-items: center; }
+  .typing span {
+    width: 6px; height: 6px; border-radius: 999px; background: var(--gold);
+    opacity: 0.4; animation: typingDot 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.15s; }
+  .typing span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typingDot { 0%,80%,100% { opacity:0.3; transform: translateY(0); } 40% { opacity:1; transform: translateY(-2px); } }
+
+  /* Bubble entry */
+  .msg-enter { animation: msgIn 0.32s ease-out both; }
+  @keyframes msgIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+
+  /* Gold gradient text */
+  .text-gold-grad {
+    background: linear-gradient(135deg, #F0A500 0%, #FFCC4A 50%, #B37A00 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Logo mark */
+  .logo-mark {
+    background: linear-gradient(135deg, #F0A500 0%, #B37A00 100%);
+    box-shadow: 0 6px 20px -6px rgba(240,165,0,0.6), inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+
+  /* Inputs */
+  .field {
+    width: 100%;
+    background: rgba(4,7,13,0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 11px 13px;
+    color: var(--ink);
+    font-size: 13.5px;
+    transition: all 0.25s ease-out;
+  }
+  .field::placeholder { color: rgba(139,155,180,0.55); }
+  .field:focus {
+    border-color: rgba(240,165,0,0.6);
+    box-shadow: 0 0 0 3px rgba(240,165,0,0.15);
+    background: rgba(18,26,47,0.85);
+  }
+  select.field { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238B9BB4' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+  select.field option { background: #0A101D; color: #fff; }
+
+  /* Pill / quick action */
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 13px; border-radius: 999px;
+    border: 1px solid rgba(240,165,0,0.28);
     color: var(--gold);
+    font-size: 12px; font-weight: 500;
+    background: transparent;
+    transition: all 0.25s ease-out;
+    cursor: pointer;
   }
-  #attachBtn:hover {
-    border-color: var(--gold);
-    color: var(--gold);
+  .pill:hover {
+    background: rgba(240,165,0,0.08);
+    border-color: rgba(240,165,0,0.6);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px -8px rgba(240,165,0,0.5);
+  }
+
+  /* Primary CTA */
+  .btn-gold {
+    width: 100%;
+    padding: 13px 18px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #F0A500 0%, #D99500 50%, #B37A00 100%);
+    color: #04070D;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 12px 30px -10px rgba(240,165,0,0.55), inset 0 1px 0 rgba(255,255,255,0.35);
+    transition: all 0.25s ease-out;
+  }
+  .btn-gold:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 18px 36px -10px rgba(240,165,0,0.7), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .btn-gold:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+  /* Tab underline animation */
+  .tab-btn { position: relative; }
+  .tab-btn::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -1px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #F0A500, transparent);
+    transform: scaleX(0);
+    transition: transform 0.3s ease-out;
+  }
+  .tab-btn.active::after { transform: scaleX(1); }
+
+  /* User bubble */
+  .bubble-user {
+    background: linear-gradient(135deg, #D99500 0%, #B37A00 100%);
+    color: #fff;
+    border-radius: 18px 18px 4px 18px;
+    box-shadow: 0 8px 22px -10px rgba(240,165,0,0.5);
+  }
+  /* AI bubble */
+  .bubble-ai {
+    background: rgba(18,26,47,0.85);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-left: 2px solid var(--gold);
+    border-radius: 4px 18px 18px 18px;
+    color: var(--ink);
+  }
+
+  /* Coach G avatar */
+  .avatar-g {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #F0A500 0%, #B37A00 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif; font-size: 16px;
+    color: #04070D; letter-spacing: 1px;
+    box-shadow: 0 4px 14px -4px rgba(240,165,0,0.55), inset 0 1px 0 rgba(255,255,255,0.4);
+    flex-shrink: 0;
+  }
+
+  .label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed; top: 76px; right: 24px; z-index: 100;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.4);
+    color: #fca5a5;
+    backdrop-filter: blur(14px);
+    transform: translateX(140%);
+    transition: transform 0.35s cubic-bezier(.2,.7,.3,1.2);
+  }
+  .toast.show { transform: translateX(0); }
+
+  /* Success card animation */
+  .pop-in { animation: popIn 0.45s cubic-bezier(.2,.8,.3,1.4) both; }
+  @keyframes popIn { from { opacity:0; transform: scale(0.92); } to { opacity:1; transform: scale(1); } }
+
+  /* Mobile */
+  @media (max-width: 900px) {
+    .app-grid { grid-template-columns: 1fr !important; grid-template-rows: 1fr auto !important; }
+    .right-panel { max-height: 50vh; }
   }
 </style>
 </head>
 <body>
-<div class="app">
 
-  <header class="header">
-    <div class="logo">
-      <div class="logo-mark">CG</div>
-      <div class="logo-text">
-        <div class="logo-title">COACHG</div>
-        <div class="logo-sub">Support Center</div>
+<!-- ─── APP SHELL ──────────────────────────────────────────────── -->
+<div class="relative z-10 flex flex-col h-screen" data-testid="app-root">
+
+  <!-- HEADER -->
+  <header class="glass flex-shrink-0 h-[68px] px-6 flex items-center justify-between border-b border-white/5" data-testid="app-header">
+    <div class="flex items-center gap-3">
+      <div class="logo-mark w-10 h-10 rounded-xl flex items-center justify-center font-display text-base text-base">
+        <span style="color:#04070D; letter-spacing:1px;">CG</span>
+      </div>
+      <div class="leading-tight">
+        <div class="font-display text-[22px] tracking-[3px] text-gold-grad">COACHG</div>
+        <div class="text-[10px] uppercase tracking-[2.4px] text-muted">Support Center</div>
       </div>
     </div>
-    <div class="header-right">
-      <div class="status-badge">
-        <span class="status-dot"></span>
-        AI Online
+
+    <div class="flex items-center gap-3">
+      <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 text-[11px] text-muted">
+        <span class="font-mono uppercase tracking-widest">v2.0</span>
+        <span class="text-dim">·</span>
+        <span>Coach G · Sonnet 4.5</span>
+      </div>
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-full glass" data-testid="ai-status-badge">
+        <span class="pulse-dot"></span>
+        <span class="text-[12px] text-ink/90 font-medium">AI Online</span>
       </div>
     </div>
   </header>
 
-  <div class="body">
+  <!-- BODY GRID -->
+  <main class="app-grid flex-1 grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-0 min-h-0">
 
-    <!-- CHAT PANEL -->
-    <div class="chat-panel">
-      <div class="messages" id="messages">
-        <div class="msg-row">
-          <div class="avatar">G</div>
-          <div class="bubble bot" id="agentGreeting">Hey! I'm Coach G Support 🏈 What can I help you with today? I can answer platform questions, troubleshoot issues, or connect you with the team.</div>
+    <!-- CHAT COLUMN -->
+    <section class="flex flex-col min-h-0 border-r border-white/5">
+
+      <!-- Chat header strip -->
+      <div class="px-6 pt-5 pb-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="avatar-g">G</div>
+          <div>
+            <div class="font-display text-[18px] tracking-[2px] text-ink">Coach G Support</div>
+            <div class="text-[11px] text-muted">GHL · Medicare · Workflows · Live triage</div>
+          </div>
         </div>
+        <button onclick="resetChat()" class="text-[11px] uppercase tracking-[1.5px] text-muted hover:text-gold transition-colors" data-testid="reset-chat-btn">
+          New Session
+        </button>
       </div>
 
-      <div class="quick-actions" id="quickActions">
-        <button class="quick-btn" onclick="quickSend('My AI bot stopped responding')">AI bot not responding</button>
-        <button class="quick-btn" onclick="quickSend('I can\'t find a contact in my CRM')">Can't find a contact</button>
-        <button class="quick-btn" onclick="quickSend('How do I set up a new workflow?')">Workflow setup help</button>
-        <button class="quick-btn" onclick="quickSend('I have a billing question')">Billing question</button>
+      <!-- Messages -->
+      <div id="messages" class="flex-1 overflow-y-auto scroll-clean px-6 py-4 flex flex-col gap-4" data-testid="messages-container">
+        <!-- greeting message injected via JS -->
       </div>
 
-      <div class="input-area">
-        <div id="chatImagePreview" style="display:none;
-          padding:8px 0 8px;align-items:center;gap:10px;">
-          <img id="chatPreviewThumb" style="width:40px;height:40px;
-            border-radius:6px;object-fit:cover;border:1px solid var(--border);">
-          <span id="chatImageName" style="font-size:12px;
-            color:var(--text-muted);flex:1;"></span>
-          <button onclick="clearChatImage()"
-            style="background:transparent;border:none;
-            color:var(--red);font-size:14px;cursor:pointer;">✕</button>
+      <!-- Quick actions -->
+      <div id="quickActions" class="px-6 pb-3 flex flex-wrap gap-2" data-testid="quick-actions">
+        <button class="pill" onclick="quickSend('My AI bot stopped responding to leads')" data-testid="quick-bot">AI bot not responding</button>
+        <button class="pill" onclick="quickSend('I can\'t find a contact in my CRM')" data-testid="quick-contact">Can't find a contact</button>
+        <button class="pill" onclick="quickSend('How do I set up a new workflow for appointment reminders?')" data-testid="quick-workflow">Workflow setup help</button>
+        <button class="pill" onclick="quickSend('I have a billing question about my plan')" data-testid="quick-billing">Billing question</button>
+        <button class="pill" onclick="quickSend('My SMS messages are not sending — A2P issue')" data-testid="quick-sms">SMS / A2P issue</button>
+      </div>
+
+      <!-- Input dock -->
+      <div class="px-6 pb-5">
+        <div id="chatImagePreview" class="hidden mb-2 items-center gap-3 p-2 rounded-lg glass">
+          <img id="chatPreviewThumb" class="w-10 h-10 rounded-md object-cover border border-white/10" alt="" />
+          <span id="chatImageName" class="text-[12px] text-muted flex-1 truncate"></span>
+          <button onclick="clearChatImage()" class="text-red-400 text-sm w-7 h-7 rounded hover:bg-red-500/10" data-testid="clear-chat-image">✕</button>
         </div>
-        <div class="input-row">
-          <button id="attachBtn" onclick="document.getElementById('chatImageInput').click()"
-            style="width:34px;height:34px;border-radius:8px;border:1px solid var(--border);
-            background:transparent;color:var(--text-muted);font-size:16px;
-            cursor:pointer;flex-shrink:0;display:flex;align-items:center;
-            justify-content:center;transition:all 0.15s;">
-            📎
+
+        <div class="glass rounded-2xl p-2.5 flex items-end gap-2 transition-all" id="inputDock" data-testid="chat-input-dock">
+          <button onclick="document.getElementById('chatImageInput').click()" class="w-9 h-9 rounded-lg border border-white/10 text-muted hover:border-gold hover:text-gold transition-all flex items-center justify-center flex-shrink-0" data-testid="chat-attach-btn" title="Attach screenshot">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
           </button>
-          <input type="file" id="chatImageInput" accept="image/*"
-            style="display:none;" onchange="handleChatImage(this)">
-          <textarea id="msgInput" rows="1" placeholder="Type your question..." onkeydown="handleKey(event)" oninput="autoResize(this); updateSend();"></textarea>
-          <button class="send-btn inactive" id="sendBtn" onclick="sendMessage()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" id="sendIcon">
-              <path d="M22 2L11 13" stroke="#5c6480" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#5c6480" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+          <input type="file" id="chatImageInput" accept="image/*" class="hidden" onchange="handleChatImage(this)" data-testid="chat-image-input" />
+          <textarea id="msgInput" rows="1" placeholder="Ask Coach G anything — workflows, A2P, Medicare, billing…" class="flex-1 bg-transparent text-ink text-[14px] leading-relaxed resize-none outline-none max-h-32 py-1.5 px-1" oninput="autoResize(this); updateSend();" onkeydown="handleKey(event)" data-testid="chat-input-field"></textarea>
+          <button id="sendBtn" onclick="sendMessage()" class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-all" style="background: rgba(255,255,255,0.05);" data-testid="chat-submit-button">
+            <svg id="sendIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5c6480" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
           </button>
         </div>
-        <div class="input-hint">Shift+Enter for new line &nbsp;·&nbsp; Powered by COACHG Revenue OS</div>
-      </div>
-    </div>
-
-    <!-- RIGHT PANEL -->
-    <div class="right-panel">
-      <div class="tabs">
-        <button class="tab active" onclick="switchTab('ai', this)">AI Support</button>
-        <button class="tab" onclick="switchTab('ticket', this)" id="tabTicket">Submit Ticket</button>
-      </div>
-
-      <!-- AI SUPPORT -->
-      <div class="tab-content active" id="tabContent-ai">
-        <div class="section-label">Coach G AI Support</div>
-        <p style="color:var(--text-muted);font-size:13px;line-height:1.6;margin-bottom:20px;">
-          Ask the AI anything in the chat. It's a senior GHL expert and walks you through fixes step by step.
-        </p>
-
-        <div class="section-label">What I Can Help With</div>
-        <ul style="list-style:none;padding:0;margin:0 0 20px;color:var(--text-muted);font-size:13px;line-height:1.9;">
-          <li>• Workflow troubleshooting</li>
-          <li>• Conversation AI bot setup</li>
-          <li>• A2P / SMS issues</li>
-          <li>• Pipelines &amp; opportunities</li>
-          <li>• Calendars &amp; appointment booking</li>
-          <li>• Forms, funnels &amp; automations</li>
-          <li>• Snapshots &amp; sub-account config</li>
-          <li>• Email deliverability (SPF/DKIM)</li>
-          <li>• Medicare product questions</li>
-        </ul>
-
-        <div class="arch-note">
-          <div class="arch-note-title">⚙ Pro tip</div>
-          <div class="arch-step">
-            <span class="arch-arrow">→</span>
-            <span>Attach a screenshot to the chat — the AI can read it and give you exact click steps.</span>
-          </div>
-        </div>
-
-        <div class="arch-note" style="margin-top:14px;">
-          <div class="arch-note-title">⚙ Need direct support?</div>
-          <div class="arch-step">
-            <span class="arch-arrow">→</span>
-            <span>Switch to Submit Ticket if the AI can't resolve it. Include details and a screenshot.</span>
-          </div>
+        <div class="text-[11px] text-dim text-center mt-2 font-mono">
+          <span class="text-muted">SHIFT + ENTER</span> for new line &nbsp;·&nbsp; Powered by <span class="text-gold">COACHG Revenue OS</span>
         </div>
       </div>
+    </section>
 
-      <!-- SUPPORT TICKET (merged: agent identity + ticket form) -->
-      <div class="tab-content" id="tabContent-ticket">
-        <div style="padding:4px 0 20px;">
+    <!-- SIDEBAR -->
+    <aside class="right-panel flex flex-col min-h-0 glass" data-testid="sidebar">
+      <!-- Tabs -->
+      <div class="flex border-b border-white/5 flex-shrink-0">
+        <button class="tab-btn flex-1 py-5 font-display tracking-[2px] text-[14px] text-gold active" onclick="switchTab('ai', this)" data-testid="tab-ai-support">AI Support</button>
+        <button class="tab-btn flex-1 py-5 font-display tracking-[2px] text-[14px] text-muted hover:text-ink transition-colors" onclick="switchTab('ticket', this)" data-testid="tab-submit-ticket">Submit Ticket</button>
+      </div>
 
-          <!-- SECTION 1 — Agent Info -->
-          <div class="section-label">Your Info</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">
-            Saved to your browser — fill once, remembered always.
+      <!-- AI SUPPORT TAB -->
+      <div id="tab-ai" class="tab-content flex-1 overflow-y-auto scroll-clean p-6 flex flex-col gap-5" data-testid="tab-content-ai">
+        <div>
+          <div class="label mb-3">Coach G · AI Triage</div>
+          <p class="text-[13.5px] text-muted leading-relaxed">
+            A senior GHL expert with deep knowledge of Medicare, A2P compliance, workflows, and the full COACHG playbook — available 24/7 right inside your dashboard.
+          </p>
+        </div>
+
+        <div class="glass rounded-xl p-4 border-l-2" style="border-left-color: var(--gold);">
+          <div class="font-display text-[14px] tracking-[1.5px] text-gold mb-3">PRO TIP</div>
+          <p class="text-[13px] text-muted leading-relaxed">
+            Attach a <span class="text-ink">screenshot</span> to the chat — the AI reads it and gives you the exact click-by-click fix.
+          </p>
+        </div>
+
+        <div>
+          <div class="label mb-3">What I Can Solve</div>
+          <ul class="space-y-2.5 text-[13px] text-muted">
+            <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>Workflow troubleshooting &amp; trigger logic</li>
+            <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>Conversation AI bot setup &amp; debugging</li>
+            <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>A2P 10DLC &amp; SMS deliverability</li>
+            <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>Pipelines, opportunities &amp; automations</li>
+            <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>Calendars &amp; appointment booking</li>
+            <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>Forms, funnels &amp; webhooks</li>
+            <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>Snapshots &amp; sub-account config</li>
+            <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>Email deliverability (SPF/DKIM/DMARC)</li>
+            <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>Medicare, annuity &amp; carrier product questions</li>
+            <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>TCPA &amp; CMS compliance basics</li>
+          </ul>
+        </div>
+
+        <div class="glass rounded-xl p-4 border-l-2" style="border-left-color: var(--gold);">
+          <div class="font-display text-[14px] tracking-[1.5px] text-gold mb-3">NEED A HUMAN?</div>
+          <p class="text-[13px] text-muted leading-relaxed mb-3">
+            If the AI can't resolve it, switch to <span class="text-ink">Submit Ticket</span> — your case routes straight into the COACHG support pipeline.
+          </p>
+          <button onclick="switchTab('ticket', document.querySelector('[data-testid=tab-submit-ticket]'))" class="text-[12px] uppercase tracking-[1.5px] text-gold hover:text-ink transition-colors flex items-center gap-2" data-testid="goto-ticket-cta">
+            Open ticket form
+            <span>→</span>
+          </button>
+        </div>
+
+        <div class="mt-auto pt-4 border-t border-white/5">
+          <div class="flex items-center justify-between text-[11px] text-dim font-mono uppercase tracking-widest">
+            <span>Avg first response</span>
+            <span class="text-gold">&lt; 2s</span>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-dim font-mono uppercase tracking-widest mt-2">
+            <span>AI Resolution rate</span>
+            <span class="text-gold">~68%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBMIT TICKET TAB -->
+      <div id="tab-ticket" class="tab-content hidden flex-1 overflow-y-auto scroll-clean p-6" data-testid="tab-content-ticket">
+
+        <!-- Section 1: Your Info -->
+        <div class="mb-5">
+          <div class="label mb-1">Your Info</div>
+          <p class="text-[11.5px] text-dim leading-relaxed mb-3">Saved to your browser — fill once, remembered always.</p>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[10px] uppercase tracking-[1.5px] text-muted mb-1.5">Your Name</label>
+              <input type="text" id="agentName" class="field" placeholder="First Last" onblur="autoSaveField('agentName')" data-testid="agent-name-input" />
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase tracking-[1.5px] text-muted mb-1.5">Email</label>
+              <input type="email" id="agentEmail" class="field" placeholder="you@agency.com" onblur="autoSaveField('agentEmail')" data-testid="agent-email-input" />
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase tracking-[1.5px] text-muted mb-1.5">Account Name</label>
+              <input type="text" id="accountName" class="field" placeholder="Acme Insurance" onblur="autoSaveField('accountName')" data-testid="account-name-input" />
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase tracking-[1.5px] text-muted mb-1.5">Account ID</label>
+              <input type="text" id="accountId" class="field" placeholder="GHL Location ID" onblur="autoSaveField('accountId')" data-testid="account-id-input" />
+            </div>
           </div>
 
-          <div class="acct-grid">
-            <div class="form-group">
-              <label class="form-label">Your Name</label>
-              <input type="text" id="agentName" placeholder="First Last"
-                onblur="autoSaveField('agentName')" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Email</label>
-              <input type="email" id="agentEmail" placeholder="you@agency.com"
-                onblur="autoSaveField('agentEmail')" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Account Name</label>
-              <input type="text" id="accountName" placeholder="My Insurance Agency"
-                onblur="autoSaveField('accountName')" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Account ID</label>
-              <input type="text" id="accountId" placeholder="GHL location ID"
-                onblur="autoSaveField('accountId')" />
-            </div>
-          </div>
-
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
-            <button onclick="saveAgentInfo()"
-              style="padding:8px 16px;background:transparent;border:1px solid var(--border);
-              border-radius:6px;color:var(--text-secondary);font-size:11px;cursor:pointer;
-              font-weight:600;letter-spacing:1px;text-transform:uppercase;
-              transition:all 0.15s;">
+          <div class="flex items-center gap-3 mt-3">
+            <button onclick="saveAgentInfo()" class="text-[11px] uppercase tracking-[1.5px] text-muted hover:text-gold border border-white/10 hover:border-gold/40 px-3 py-1.5 rounded-md transition-all" data-testid="save-agent-info-btn">
               Save Info
             </button>
-            <span id="saveAgentInfoStatus"
-              style="display:none;font-size:12px;color:var(--green);"></span>
+            <span id="saveAgentInfoStatus" class="text-[12px] text-emerald-400 hidden">✓ Saved</span>
           </div>
+        </div>
 
-          <!-- SECTION 2 — Ticket Form -->
-          <div class="section-label" style="margin-top:8px;">Submit a Ticket</div>
+        <!-- Divider -->
+        <div class="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-5"></div>
 
-          <div class="form-group">
-            <label class="form-label">Issue Category</label>
-            <select id="ticketCategory">
-              <option value="">Select category...</option>
+        <!-- Section 2: Ticket form -->
+        <div id="ticketFormWrap">
+          <div class="label mb-3">Submit a Ticket</div>
+
+          <div class="mb-4">
+            <label class="block text-[10px] uppercase tracking-[1.5px] text-muted mb-1.5">Issue Category</label>
+            <select id="ticketCategory" class="field" data-testid="ticket-category-select">
+              <option value="">Select category…</option>
               <option value="Platform/Tech">Platform / Tech</option>
               <option value="Billing">Billing</option>
               <option value="Training">Training</option>
@@ -356,69 +471,73 @@
             </select>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Priority</label>
-            <select id="ticketPriority">
-              <option value="">Select priority...</option>
+          <div class="mb-4">
+            <label class="block text-[10px] uppercase tracking-[1.5px] text-muted mb-1.5">Priority</label>
+            <select id="ticketPriority" class="field" data-testid="ticket-priority-select">
+              <option value="">Select priority…</option>
               <option value="1">1 — Low (can wait)</option>
               <option value="2">2 — Medium (this week)</option>
               <option value="3">3 — High (today)</option>
             </select>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Describe Your Issue</label>
-            <textarea id="ticketDescription" rows="4"
-              placeholder="Describe what's happening and any steps you already tried..."></textarea>
+          <div class="mb-4">
+            <label class="block text-[10px] uppercase tracking-[1.5px] text-muted mb-1.5">Describe Your Issue</label>
+            <textarea id="ticketDescription" rows="4" class="field resize-y" placeholder="What's happening, what you've tried, what you expected…" data-testid="ticket-description-input"></textarea>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Screenshot (optional)</label>
-            <button type="button" id="ticketAttachBtn"
-              onclick="document.getElementById('ticketImageInput').click()"
-              style="width:100%;padding:10px 12px;background:var(--bg-input);
-              border:1px dashed var(--border);border-radius:8px;color:var(--text-muted);
-              font-size:12px;cursor:pointer;transition:border-color 0.15s;">
-              📎 Click to attach an image (max 5MB)
+          <div class="mb-5">
+            <label class="block text-[10px] uppercase tracking-[1.5px] text-muted mb-1.5">Screenshot (optional)</label>
+            <button type="button" id="ticketAttachBtn" onclick="document.getElementById('ticketImageInput').click()" class="w-full py-3 rounded-lg border border-dashed border-white/15 text-muted hover:border-gold/60 hover:text-gold hover:bg-gold/5 transition-all text-[12px]" data-testid="ticket-attach-btn">
+              <span class="inline-flex items-center gap-2">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                Attach an image (max 5MB)
+              </span>
             </button>
-            <input type="file" id="ticketImageInput" accept="image/*"
-              style="display:none;" onchange="handleTicketImage(this)">
-            <div id="ticketImagePreview" style="display:none;margin-top:10px;
-              padding:8px;background:var(--bg-input);border:1px solid var(--border);
-              border-radius:8px;display:none;align-items:center;gap:10px;">
-              <img id="ticketPreviewThumb" style="width:40px;height:40px;
-                border-radius:6px;object-fit:cover;border:1px solid var(--border);">
-              <span id="ticketImageName" style="font-size:12px;
-                color:var(--text-muted);flex:1;"></span>
-              <button type="button" onclick="clearTicketImage()"
-                style="background:transparent;border:none;color:var(--red);
-                font-size:14px;cursor:pointer;">✕</button>
+            <input type="file" id="ticketImageInput" accept="image/*" class="hidden" onchange="handleTicketImage(this)" data-testid="ticket-image-input" />
+            <div id="ticketImagePreview" class="hidden mt-2 p-2 rounded-lg glass items-center gap-3">
+              <img id="ticketPreviewThumb" class="w-10 h-10 rounded-md object-cover border border-white/10" alt="" />
+              <span id="ticketImageName" class="text-[12px] text-muted flex-1 truncate"></span>
+              <button type="button" onclick="clearTicketImage()" class="text-red-400 text-sm w-7 h-7 rounded hover:bg-red-500/10" data-testid="clear-ticket-image">✕</button>
             </div>
           </div>
 
-          <button id="submitTicketBtn" onclick="submitTicketForm()"
-            style="width:100%;background:var(--gold);color:var(--bg-base);
-            border:none;border-radius:8px;padding:13px 0;font-weight:700;
-            font-size:14px;letter-spacing:.5px;cursor:pointer;margin-top:4px;
-            transition:opacity 0.15s;">
+          <button id="submitTicketBtn" onclick="submitTicketForm()" class="btn-gold" data-testid="ticket-form-submit">
             Submit Support Ticket →
           </button>
 
-          <div id="ticketFormStatus" style="display:none;margin-top:14px;
-            padding:12px;border-radius:8px;font-size:13px;text-align:center;">
-          </div>
+          <div id="ticketFormStatus" class="hidden mt-3 p-3 rounded-lg text-[12.5px] text-center" data-testid="ticket-status-message"></div>
         </div>
+
+        <!-- Success state (hidden by default, swapped in after submit) -->
+        <div id="ticketSuccess" class="hidden pop-in flex flex-col items-center text-center py-6" data-testid="ticket-success-state">
+          <div class="w-16 h-16 rounded-full flex items-center justify-center mb-4" style="background: linear-gradient(135deg, rgba(34,197,94,0.18), rgba(240,165,0,0.18)); box-shadow: 0 0 30px rgba(34,197,94,0.25);">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17L4 12"/></svg>
+          </div>
+          <div class="font-display text-[22px] tracking-[2px] text-ink">TICKET SUBMITTED</div>
+          <div class="text-[12px] text-muted mt-1">Your ticket ID</div>
+          <div id="successTicketId" class="font-mono text-gold text-[16px] mt-2 px-4 py-1.5 rounded-md border border-gold/30 bg-gold/5" data-testid="success-ticket-id">TKT-______</div>
+          <p class="text-[12.5px] text-muted leading-relaxed mt-5 max-w-[280px]">
+            Check your email for confirmation. Priority <span id="successPriority" class="text-ink"></span> tickets are reviewed first.
+          </p>
+          <button onclick="resetTicketForm()" class="mt-6 text-[11px] uppercase tracking-[1.5px] text-gold hover:text-ink transition-colors" data-testid="new-ticket-btn">
+            Submit another →
+          </button>
+        </div>
+
       </div>
+    </aside>
 
-    </div>
-
-  </div>
+  </main>
 </div>
 
-<div class="error-toast" id="errorToast"></div>
+<div id="errorToast" class="toast" data-testid="error-toast"></div>
 
+<!-- ─── SCRIPT ──────────────────────────────────────────────────── -->
 <script>
-// ─── STATE ─────────────────────────────────────────────────────────────────
+'use strict';
+
+// ─── STATE ─────────────────────────────────────────────────────
 let chatHistory = [];
 let isLoading = false;
 let chatImageFile = null;
@@ -426,38 +545,40 @@ let chatImageBase64 = null;
 let ticketImageFile = null;
 let ticketImageBase64 = null;
 
-// ─── AGENT IDENTITY (localStorage) ─────────────────────────────────────────
-// GHL Custom Menu Links don't resolve merge tags in URLs, so agents enter
-// their own identity once in the Support Ticket tab. Values persist via localStorage.
-
+// ─── IDENTITY (localStorage) ───────────────────────────────────
 const IDENTITY_KEYS = ['agentName', 'agentEmail', 'accountName', 'accountId'];
+
+function getFirstName() {
+  return (localStorage.getItem('agentName') || '').trim().split(' ')[0];
+}
+
+function refreshGreeting() {
+  const first = getFirstName();
+  const greeting = first
+    ? `Hey ${first} — Coach G here. What can I help you fix today? Workflows, A2P, Medicare carriers, Conversation AI — I've got you. Ask away or drop a screenshot.`
+    : `Hey — Coach G here. What can I help you fix today? Workflows, A2P, Medicare carriers, Conversation AI — I've got you. Ask away or drop a screenshot.`;
+
+  const msgs = document.getElementById('messages');
+  // Only render greeting if no messages yet
+  if (chatHistory.length === 0) {
+    msgs.innerHTML = '';
+    addMessage('assistant', greeting, false);
+  }
+}
 
 function populateAgentInfo() {
   IDENTITY_KEYS.forEach(k => {
     const el = document.getElementById(k);
     if (el) el.value = localStorage.getItem(k) || '';
   });
-  const agentName = localStorage.getItem('agentName') || '';
-  if (agentName) {
-    const firstName = agentName.split(' ')[0];
-    document.getElementById('agentGreeting').textContent =
-      'Hey ' + firstName + '! I\'m Coach G Support 🏈 What can I help you with today?';
-  }
+  refreshGreeting();
 }
-populateAgentInfo();
 
 function autoSaveField(key) {
   const el = document.getElementById(key);
   if (!el) return;
   localStorage.setItem(key, el.value.trim());
-  if (key === 'agentName') {
-    const agentName = el.value.trim();
-    if (agentName) {
-      const firstName = agentName.split(' ')[0];
-      document.getElementById('agentGreeting').textContent =
-        'Hey ' + firstName + '! I\'m Coach G Support 🏈 What can I help you with today?';
-    }
-  }
+  if (key === 'agentName' && chatHistory.length === 0) refreshGreeting();
 }
 
 function saveAgentInfo() {
@@ -465,99 +586,46 @@ function saveAgentInfo() {
     const el = document.getElementById(k);
     if (el) localStorage.setItem(k, el.value.trim());
   });
-  const status = document.getElementById('saveAgentInfoStatus');
-  status.style.display = 'inline';
-  status.textContent = '✓ Saved!';
-  setTimeout(() => { status.style.display = 'none'; }, 2000);
-  const agentName = localStorage.getItem('agentName') || '';
-  if (agentName) {
-    const firstName = agentName.split(' ')[0];
-    document.getElementById('agentGreeting').textContent =
-      'Hey ' + firstName + '! I\'m Coach G Support 🏈 What can I help you with today?';
-  }
+  const s = document.getElementById('saveAgentInfoStatus');
+  s.classList.remove('hidden');
+  setTimeout(() => s.classList.add('hidden'), 2000);
+  if (chatHistory.length === 0) refreshGreeting();
 }
 
-// ─── IMAGE UPLOAD HANDLERS ─────────────────────────────────────────────────
-function handleChatImage(input) {
-  const file = input.files[0];
-  if (!file) return;
-  if (file.size > 5 * 1024 * 1024) {
-    showError('Image must be under 5MB');
-    input.value = '';
-    return;
-  }
-  chatImageFile = file;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    chatImageBase64 = e.target.result.split(',')[1];
-    document.getElementById('chatPreviewThumb').src = e.target.result;
-    document.getElementById('chatImageName').textContent = file.name;
-    document.getElementById('chatImagePreview').style.display = 'flex';
-    updateSend();
-  };
-  reader.readAsDataURL(file);
-}
-
-function clearChatImage() {
-  chatImageFile = null;
-  chatImageBase64 = null;
-  document.getElementById('chatImageInput').value = '';
-  document.getElementById('chatImagePreview').style.display = 'none';
-  updateSend();
-}
-
-function handleTicketImage(input) {
-  const file = input.files[0];
-  if (!file) return;
-  if (file.size > 5 * 1024 * 1024) {
-    showError('Image must be under 5MB');
-    input.value = '';
-    return;
-  }
-  ticketImageFile = file;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    ticketImageBase64 = e.target.result.split(',')[1];
-    document.getElementById('ticketPreviewThumb').src = e.target.result;
-    document.getElementById('ticketImageName').textContent = file.name;
-    document.getElementById('ticketImagePreview').style.display = 'flex';
-    document.getElementById('ticketAttachBtn').textContent = '📎 Replace image';
-  };
-  reader.readAsDataURL(file);
-}
-
-function clearTicketImage() {
-  ticketImageFile = null;
-  ticketImageBase64 = null;
-  document.getElementById('ticketImageInput').value = '';
-  document.getElementById('ticketImagePreview').style.display = 'none';
-  document.getElementById('ticketAttachBtn').textContent = '📎 Click to attach an image (max 5MB)';
-}
-
-// ─── TABS ──────────────────────────────────────────────────────────────────
+// ─── TABS ──────────────────────────────────────────────────────
 function switchTab(tab, btn) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('tabContent-' + tab).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(t => {
+    t.classList.remove('active', 'text-gold');
+    t.classList.add('text-muted');
+  });
+  if (btn) {
+    btn.classList.add('active', 'text-gold');
+    btn.classList.remove('text-muted');
+  }
+  document.getElementById('tab-ai').classList.add('hidden');
+  document.getElementById('tab-ticket').classList.add('hidden');
+  document.getElementById('tab-' + tab).classList.remove('hidden');
 }
 
-// ─── HELPERS ───────────────────────────────────────────────────────────────
+// ─── HELPERS ───────────────────────────────────────────────────
 function autoResize(el) {
   el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  el.style.height = Math.min(el.scrollHeight, 128) + 'px';
 }
 
 function updateSend() {
   const val = document.getElementById('msgInput').value.trim();
   const btn = document.getElementById('sendBtn');
-  const paths = document.getElementById('sendIcon').querySelectorAll('path');
-  if ((val || chatImageBase64) && !isLoading) {
-    btn.className = 'send-btn active';
-    paths.forEach(p => p.setAttribute('stroke', '#07090f'));
+  const icon = document.getElementById('sendIcon');
+  const active = (val || chatImageBase64) && !isLoading;
+  if (active) {
+    btn.style.background = 'linear-gradient(135deg, #F0A500, #B37A00)';
+    btn.style.boxShadow = '0 4px 14px -4px rgba(240,165,0,0.6)';
+    icon.querySelectorAll('path').forEach(p => p.setAttribute('stroke', '#04070D'));
   } else {
-    btn.className = 'send-btn inactive';
-    paths.forEach(p => p.setAttribute('stroke', '#5c6480'));
+    btn.style.background = 'rgba(255,255,255,0.05)';
+    btn.style.boxShadow = 'none';
+    icon.querySelectorAll('path').forEach(p => p.setAttribute('stroke', '#5c6480'));
   }
 }
 
@@ -583,15 +651,32 @@ function showError(msg) {
   setTimeout(() => toast.classList.remove('show'), 4000);
 }
 
-// ─── RENDER MESSAGES ───────────────────────────────────────────────────────
-function addMessage(role, text) {
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br>');
+}
+
+function cleanText(text) {
+  return String(text).replace(/\{"action":[^}]+\}/, '').trim();
+}
+
+// ─── MESSAGES ──────────────────────────────────────────────────
+function addMessage(role, text, isHistory = true) {
   const msgs = document.getElementById('messages');
   const row = document.createElement('div');
-  row.className = 'msg-row ' + (role === 'user' ? 'user' : '');
+  row.className = 'flex gap-2.5 msg-enter ' + (role === 'user' ? 'justify-end' : '');
   if (role === 'assistant') {
-    row.innerHTML = `<div class="avatar">G</div><div class="bubble bot">${escHtml(text)}</div>`;
+    row.innerHTML = `
+      <div class="avatar-g">G</div>
+      <div class="bubble-ai px-4 py-2.5 max-w-[78%] text-[14px] leading-relaxed" data-testid="ai-bubble">${escHtml(text)}</div>
+    `;
   } else {
-    row.innerHTML = `<div class="bubble user">${escHtml(text)}</div>`;
+    row.innerHTML = `
+      <div class="bubble-user px-4 py-2.5 max-w-[78%] text-[14px] leading-relaxed" data-testid="user-bubble">${escHtml(text)}</div>
+    `;
   }
   msgs.appendChild(row);
   scrollBottom();
@@ -601,25 +686,91 @@ function addMessage(role, text) {
 function showTyping() {
   const msgs = document.getElementById('messages');
   const row = document.createElement('div');
-  row.className = 'msg-row'; row.id = 'typing-row';
-  row.innerHTML = `<div class="avatar">G</div><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
-  msgs.appendChild(row); scrollBottom();
+  row.id = 'typing-row';
+  row.className = 'flex gap-2.5 msg-enter';
+  row.innerHTML = `
+    <div class="avatar-g">G</div>
+    <div class="bubble-ai px-4 py-3 inline-flex items-center" data-testid="typing-indicator">
+      <span class="typing"><span></span><span></span><span></span></span>
+    </div>
+  `;
+  msgs.appendChild(row);
+  scrollBottom();
 }
 
 function removeTyping() {
   document.getElementById('typing-row')?.remove();
 }
 
-function escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+function resetChat() {
+  chatHistory = [];
+  document.getElementById('messages').innerHTML = '';
+  document.getElementById('quickActions').style.display = '';
+  clearChatImage();
+  refreshGreeting();
 }
 
-function cleanText(text) {
-  // Strip any stray {"action":...} JSON the AI might emit (defensive)
-  return text.replace(/\{"action":[^}]+\}/, '').trim();
+// ─── IMAGE UPLOAD ──────────────────────────────────────────────
+function handleChatImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showError('Image must be under 5MB'); input.value = ''; return; }
+  chatImageFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    chatImageBase64 = e.target.result.split(',')[1];
+    document.getElementById('chatPreviewThumb').src = e.target.result;
+    document.getElementById('chatImageName').textContent = file.name;
+    const pv = document.getElementById('chatImagePreview');
+    pv.classList.remove('hidden');
+    pv.classList.add('flex');
+    updateSend();
+  };
+  reader.readAsDataURL(file);
 }
 
-// ─── SEND MESSAGE ──────────────────────────────────────────────────────────
+function clearChatImage() {
+  chatImageFile = null;
+  chatImageBase64 = null;
+  document.getElementById('chatImageInput').value = '';
+  const pv = document.getElementById('chatImagePreview');
+  pv.classList.add('hidden');
+  pv.classList.remove('flex');
+  updateSend();
+}
+
+function handleTicketImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showError('Image must be under 5MB'); input.value = ''; return; }
+  ticketImageFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    ticketImageBase64 = e.target.result.split(',')[1];
+    document.getElementById('ticketPreviewThumb').src = e.target.result;
+    document.getElementById('ticketImageName').textContent = file.name;
+    const pv = document.getElementById('ticketImagePreview');
+    pv.classList.remove('hidden');
+    pv.classList.add('flex');
+    document.getElementById('ticketAttachBtn').innerHTML = '<span class="inline-flex items-center gap-2 text-gold">Replace image</span>';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearTicketImage() {
+  ticketImageFile = null;
+  ticketImageBase64 = null;
+  document.getElementById('ticketImageInput').value = '';
+  const pv = document.getElementById('ticketImagePreview');
+  pv.classList.add('hidden');
+  pv.classList.remove('flex');
+  document.getElementById('ticketAttachBtn').innerHTML = `<span class="inline-flex items-center gap-2">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+    Attach an image (max 5MB)
+  </span>`;
+}
+
+// ─── SEND CHAT ─────────────────────────────────────────────────
 async function sendMessage() {
   const input = document.getElementById('msgInput');
   const text = input.value.trim();
@@ -632,14 +783,8 @@ async function sendMessage() {
   let userContent;
   if (hadImage) {
     userContent = [
-      {
-        type: 'image',
-        source: { type: 'base64', media_type: imageMime, data: imageData }
-      },
-      {
-        type: 'text',
-        text: text || 'Please analyze this screenshot and help me resolve the issue.'
-      }
+      { type: 'image', source: { type: 'base64', media_type: imageMime, data: imageData } },
+      { type: 'text', text: text || 'Please analyze this screenshot and help me resolve the issue.' }
     ];
   } else {
     userContent = text;
@@ -654,45 +799,64 @@ async function sendMessage() {
   showTyping();
 
   try {
-    // Calls /api/chat — Vercel serverless function that proxies to Anthropic
-    // ANTHROPIC_API_KEY lives in Vercel env vars, never exposed to browser
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        messages: [...chatHistory, { role: 'user', content: userContent }]
-      })
+      body: JSON.stringify({ messages: [...chatHistory, { role: 'user', content: userContent }] })
     });
-
     const data = await res.json();
-    if (!res.ok) { throw new Error(data.error || 'API error'); }
+    if (!res.ok) throw new Error(data.error || 'API error');
 
     const rawText = data.content?.[0]?.text || 'I ran into an issue. Please try again.';
-    const cleanedText = cleanText(rawText);
+    const cleaned = cleanText(rawText);
 
     if (hadImage) {
-      chatHistory.push({
-        role: 'user',
-        content: '[Image attached] ' + (text || 'Screenshot shared')
-      });
+      chatHistory.push({ role: 'user', content: '[Image attached] ' + (text || 'Screenshot shared') });
     } else {
       chatHistory.push({ role: 'user', content: text });
     }
     chatHistory.push({ role: 'assistant', content: rawText });
-    removeTyping();
-    addMessage('assistant', cleanedText);
 
+    removeTyping();
+    addMessage('assistant', cleaned);
   } catch (err) {
     removeTyping();
     addMessage('assistant', 'I ran into a connection issue. Please try again in a moment.');
     showError('Connection error: ' + err.message);
   }
-
   isLoading = false; updateSend();
 }
 
+// ─── TICKET SUBMISSION ─────────────────────────────────────────
+function setTicketStatus(type, msg) {
+  const el = document.getElementById('ticketFormStatus');
+  el.classList.remove('hidden');
+  if (type === 'error') {
+    el.style.background = 'rgba(239,68,68,0.10)';
+    el.style.border = '1px solid rgba(239,68,68,0.35)';
+    el.style.color = '#fca5a5';
+  } else {
+    el.style.background = 'rgba(34,197,94,0.10)';
+    el.style.border = '1px solid rgba(34,197,94,0.35)';
+    el.style.color = '#86efac';
+  }
+  el.textContent = msg;
+}
+
+function resetTicketForm() {
+  document.getElementById('ticketCategory').value = '';
+  document.getElementById('ticketPriority').value = '';
+  document.getElementById('ticketDescription').value = '';
+  clearTicketImage();
+  document.getElementById('ticketFormStatus').classList.add('hidden');
+  document.getElementById('ticketFormWrap').classList.remove('hidden');
+  document.getElementById('ticketSuccess').classList.add('hidden');
+  const btn = document.getElementById('submitTicketBtn');
+  btn.disabled = false;
+  btn.textContent = 'Submit Support Ticket →';
+}
+
 async function submitTicketForm() {
-  // Identity comes from localStorage (Section 1 of the Support Ticket tab)
   const name = (localStorage.getItem('agentName') || '').trim();
   const email = (localStorage.getItem('agentEmail') || '').trim();
   const accountId = (localStorage.getItem('accountId') || '').trim();
@@ -701,39 +865,28 @@ async function submitTicketForm() {
   const category = document.getElementById('ticketCategory').value;
   const priority = document.getElementById('ticketPriority').value;
   const description = document.getElementById('ticketDescription').value.trim();
-  const statusEl = document.getElementById('ticketFormStatus');
   const btn = document.getElementById('submitTicketBtn');
 
-  // Validation
   if (!name || !email) {
-    statusEl.style.display = 'block';
-    statusEl.style.background = 'rgba(239,68,68,0.12)';
-    statusEl.style.border = '1px solid rgba(239,68,68,0.3)';
-    statusEl.style.color = 'var(--red)';
-    statusEl.textContent = 'Add your name and email in "Your Info" above first.';
+    setTicketStatus('error', 'Add your name and email in "Your Info" above first.');
     return;
   }
   if (!category || !priority || !description) {
-    statusEl.style.display = 'block';
-    statusEl.style.background = 'rgba(239,68,68,0.12)';
-    statusEl.style.border = '1px solid rgba(239,68,68,0.3)';
-    statusEl.style.color = 'var(--red)';
-    statusEl.textContent = 'Fill in category, priority, and description before submitting.';
+    setTicketStatus('error', 'Fill in category, priority, and description before submitting.');
     return;
   }
 
-  btn.textContent = 'Submitting...';
-  btn.style.opacity = '0.6';
   btn.disabled = true;
+  btn.textContent = 'Submitting…';
 
-  const ticketId = 'TKT-' + Math.random().toString(36).substr(2,6).toUpperCase();
+  const ticketId = 'TKT-' + Math.random().toString(36).substr(2, 6).toUpperCase();
 
-  // Upload screenshot to GHL Media Library first (if attached)
+  // Upload screenshot via preview-mode /api/upload (or production GHL Media)
   let screenshotUrl = null;
   if (ticketImageFile && ticketImageBase64) {
-    btn.textContent = 'Uploading screenshot...';
+    btn.textContent = 'Uploading screenshot…';
     try {
-      const uploadRes = await fetch('/api/upload', {
+      const up = await fetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -743,39 +896,29 @@ async function submitTicketForm() {
           locationId: accountId
         })
       });
-      const uploadData = await uploadRes.json().catch(() => ({}));
-      if (!uploadRes.ok || !uploadData.url) {
-        throw new Error(uploadData.error || 'Screenshot upload failed');
-      }
-      screenshotUrl = uploadData.url;
-    } catch (uploadErr) {
-      statusEl.style.display = 'block';
-      statusEl.style.background = 'rgba(239,68,68,0.12)';
-      statusEl.style.border = '1px solid rgba(239,68,68,0.3)';
-      statusEl.style.color = 'var(--red)';
-      statusEl.textContent = 'Screenshot upload failed: ' + uploadErr.message;
-      btn.textContent = 'Submit Support Ticket →';
-      btn.style.opacity = '1';
+      const data = await up.json().catch(() => ({}));
+      if (!up.ok || !data.url) throw new Error(data.error || 'Upload failed');
+      screenshotUrl = data.url;
+    } catch (e) {
+      setTicketStatus('error', 'Screenshot upload failed: ' + e.message);
       btn.disabled = false;
+      btn.textContent = 'Submit Support Ticket →';
       return;
     }
-    btn.textContent = 'Submitting...';
+    btn.textContent = 'Submitting…';
   }
 
   const payload = {
     event: 'support.ticket.created',
     source: 'coachg-support-portal',
     timestamp: new Date().toISOString(),
-    contact: { firstName: name, email: email },
-    account: {
-      id: localStorage.getItem('accountId') || '',
-      name: localStorage.getItem('accountName') || ''
-    },
+    contact: { firstName: name, email },
+    account: { id: accountId, name: accountName },
     ticket: {
       id: ticketId,
-      category: category,
+      category,
       priority: parseInt(priority),
-      description: description,
+      description,
       status: 'open',
       screenshot_url: screenshotUrl || ''
     }
@@ -787,42 +930,25 @@ async function submitTicketForm() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-
     const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Submission failed');
 
-    if (res.ok) {
-      statusEl.style.display = 'block';
-      statusEl.style.background = 'rgba(34,197,94,0.12)';
-      statusEl.style.border = '1px solid rgba(34,197,94,0.3)';
-      statusEl.style.color = 'var(--green)';
-      statusEl.innerHTML = '✅ Ticket <strong>' + ticketId +
-        '</strong> submitted! Check your email for confirmation.';
-
-      // Clear only ticket-specific fields — keep identity intact
-      document.getElementById('ticketCategory').value = '';
-      document.getElementById('ticketPriority').value = '';
-      document.getElementById('ticketDescription').value = '';
-      clearTicketImage();
-
-      btn.textContent = 'Submit Another Ticket →';
-      btn.style.opacity = '1';
-      btn.disabled = false;
-
-    } else {
-      throw new Error(data.error || 'Submission failed');
-    }
-
-  } catch(err) {
-    statusEl.style.display = 'block';
-    statusEl.style.background = 'rgba(239,68,68,0.12)';
-    statusEl.style.border = '1px solid rgba(239,68,68,0.3)';
-    statusEl.style.color = 'var(--red)';
-    statusEl.textContent = 'Error: ' + err.message + '. Please try again.';
-    btn.textContent = 'Submit Support Ticket →';
-    btn.style.opacity = '1';
+    // Show success state
+    document.getElementById('successTicketId').textContent = ticketId;
+    document.getElementById('successPriority').textContent =
+      ({ '1': 'low', '2': 'medium', '3': 'high' })[priority] || '';
+    document.getElementById('ticketFormWrap').classList.add('hidden');
+    document.getElementById('ticketSuccess').classList.remove('hidden');
+  } catch (err) {
+    setTicketStatus('error', 'Error: ' + err.message);
     btn.disabled = false;
+    btn.textContent = 'Submit Support Ticket →';
   }
 }
+
+// ─── INIT ──────────────────────────────────────────────────────
+populateAgentInfo();
+updateSend();
 </script>
 </body>
 </html>
