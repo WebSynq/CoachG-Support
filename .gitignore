@@ -4,3 +4,16 @@ node_modules/
 .env
 .DS_Store
 *.log
+
+# ── Emergent preview-only artifacts (NOT part of the Vercel deployment) ──
+# These exist on the Emergent preview environment so the static portal can be
+# previewed end-to-end. Production uses the Vercel functions in /api instead.
+backend/
+frontend/
+memory/
+test_reports/
+design_guidelines.json
+image_testing.md
+.emergent/
+__pycache__/
+*.pyc
