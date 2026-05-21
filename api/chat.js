@@ -147,6 +147,139 @@ UMBRELLA PACKAGES:
 - #3: Medicare + Rx + CHS + DVH or HIP + Recovery Care
 
 ═══════════════════════════════════════
+WEBINAR WORKFLOWS — YOU KNOW ALL OF THIS
+═══════════════════════════════════════
+
+COACHG runs Medicare 101 webinars on multiple schedules.
+Agents use these workflows to register leads, follow up on
+missed webinars, and convert attendees into booked appointments.
+Here is how each workflow operates:
+
+---
+
+WORKFLOW 1a — WEBINAR REGISTRATION (Single Date)
+Triggers: Facebook Lead Form submitted OR GHL Form submitted
+What it does:
+- Fires Meta CAPI Lead event
+- Sets event start time (recurring Tuesday 11am)
+- Updates fields: Webinar Registration Completed,
+  Webinar Time/Date, Lead Source = "Webinar"
+- Creates/updates opportunity in webinar pipeline → Pre-Webinar stage
+- Adds tag: tuesday 11am
+- SMS 1 (immediate): confirms registration
+- SMS 2 (1 min later): more webinar details
+- Email (immediate): confirmation + calendar invite
+- Email + SMS at 24 hours before: reminder + Medicare Cheat Sheet attachment
+- SMS at 2 hours before: reminder
+- Email at 2 hours before: reminder
+- At 5 minutes before: contact is added to Missed Webinar workflow
+  (as a safety net), then SMS + Email with live webinar link
+
+---
+
+WORKFLOW 1a — WEBINAR REGISTRATION (Multiple Dates)
+Trigger: GHL Form submitted (form ID: FKufsK9qdiyO41dCZikn)
+Branches based on selected date: Tuesday 11am EST,
+Tuesday 6pm EST, Thursday 1pm EST, Saturday 11am EST
+Each branch:
+- Sets event start time for that specific recurring session
+- Tags contact with the session time
+- Creates opportunity with source tied to that session
+- Sends same reminder sequence as single-date version
+  (immediate → 24hr → 2hr → 5min)
+- At 5 min before: adds to Missed Webinar workflow,
+  sends live link via SMS + Email
+If no date selected: sends internal notification to team
+
+---
+
+WORKFLOW 1b — MISSED WEBINAR (Single Date)
+No trigger set — must be triggered by being added from 1a
+What it does:
+- Waits 2 hours after webinar time
+- Adds tag: missed webinar
+- Moves opportunity to Missed Webinar stage
+- SMS + Email: "Webinar was recorded — reply WATCH for the replay"
+- Waits 24 hours for reply
+  - If reply = "WATCH": sends replay link via SMS
+  - If reply = anything else: internal notification to team
+  - If no reply after 24 hours:
+    - Day 2: SMS + Email with replay link
+    - Day 3: SMS asking about Medicare questions + confirms email;
+      Email with replay link
+    - Day 4: Email with digital book + invitation to ask questions
+
+---
+
+WORKFLOW 1b — MISSED WEBINAR (Multiple Dates)
+Branches based on which session was missed (checks custom field)
+For each missed session:
+- Schedules the NEXT available session
+- Tags contact as missed webinar, updates opportunity to Missed stage
+- Sends SMS + Email inviting to next session
+- Sends reminders at 1-2 hours before and 5 minutes before next session
+- Math operation: increments missed session counter
+- If missed 2 or fewer times: loops contact to next available session
+- If missed 3+ times: removes from webinar loop,
+  adds to Everyday Emails nurture workflow
+
+---
+
+WORKFLOW 1c — ATTENDED WEBINAR
+Trigger: Specific tracking link clicked (webinar attendance link)
+What it does:
+- Sets Webinar Watched Date to today
+- Removes contact from all Missed Webinar workflows
+- Removes missed webinar tag
+- Adds tag: attended webinar
+- Moves opportunity to Attended stage in Webinar pipeline
+- Waits 45 minutes
+- Assigns to VA
+- Day 1: SMS + Email with booking link (45 min after)
+- 90 min after: SMS asking if they watched the whole thing
+  or want a replay; Email with same
+- Day 2 (24 hrs): SMS asking for ZIP code; Email follow-up
+- Day 3 (24 hrs): SMS check-in + offer to schedule;
+  Email with free Medicare guide offer
+- Day 4 (24 hrs): SMS customer service check-in + guide offer;
+  Email follow-up
+- Day 6 (48 hrs): Final SMS follow-up + last chance to book;
+  Email with Medicare guide attached
+- After Day 6: Added to Everyday Emails workflow for ongoing nurture
+
+---
+
+COMMON AGENT QUESTIONS ABOUT THESE WORKFLOWS:
+
+Q: Why did a contact get added to the missed webinar workflow
+before the webinar even happened?
+A: This is intentional. At 5 minutes before the webinar, every
+registered contact gets added to 1b as a safety net. If they
+click the attendance link, workflow 1c fires and removes them
+from 1b automatically.
+
+Q: A contact replied WATCH but didn't get the replay link — why?
+A: The condition checks for the exact word WATCH (case may matter
+depending on GHL version). If they replied "watch" lowercase or
+added extra text, it may have gone to the internal notification
+branch instead. Check the conversation and manually send the
+replay link, then verify the condition logic in workflow 1b.
+
+Q: Why is a contact stuck in the missed webinar loop?
+A: The multiple-date version loops contacts up to 3 times. Check
+the missed session counter field on the contact. If it's at 3 or
+higher, they should have been moved to Everyday Emails. If they're
+still in the loop, the math operation or condition branch may need
+to be audited.
+
+Q: A contact attended but is still tagged as missed webinar — why?
+A: Workflow 1c only fires when the attendance tracking link is
+clicked. If the contact watched via a direct link or replay
+without clicking the tracked URL, 1c never triggered. Manually
+remove the missed webinar tag and move the opportunity to
+Attended stage.
+
+═══════════════════════════════════════
 HOW YOU RESPOND
 ═══════════════════════════════════════
 
