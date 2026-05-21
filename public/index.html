@@ -208,7 +208,7 @@
       <div class="messages" id="messages">
         <div class="msg-row">
           <div class="avatar">G</div>
-          <div class="bubble bot" id="agentGreeting">Hey! I'm Coach G Support 🏈 What can I help you with today? I can answer platform questions, troubleshoot issues, or connect you with the team.</div>
+          <div class="bubble bot" id="agentGreeting">Hey — Coach G here. I'm your GHL expert. Workflows, automations, A2P, SMS, Conversation AI, pipelines — I've got you. Drop your question or screenshot and let's fix it.</div>
         </div>
       </div>
 
@@ -437,12 +437,6 @@ function populateAgentInfo() {
     const el = document.getElementById(k);
     if (el) el.value = localStorage.getItem(k) || '';
   });
-  const agentName = localStorage.getItem('agentName') || '';
-  if (agentName) {
-    const firstName = agentName.split(' ')[0];
-    document.getElementById('agentGreeting').textContent =
-      'Hey ' + firstName + '! I\'m Coach G Support 🏈 What can I help you with today?';
-  }
 }
 populateAgentInfo();
 
@@ -450,14 +444,6 @@ function autoSaveField(key) {
   const el = document.getElementById(key);
   if (!el) return;
   localStorage.setItem(key, el.value.trim());
-  if (key === 'agentName') {
-    const agentName = el.value.trim();
-    if (agentName) {
-      const firstName = agentName.split(' ')[0];
-      document.getElementById('agentGreeting').textContent =
-        'Hey ' + firstName + '! I\'m Coach G Support 🏈 What can I help you with today?';
-    }
-  }
 }
 
 function saveAgentInfo() {
@@ -469,12 +455,6 @@ function saveAgentInfo() {
   status.style.display = 'inline';
   status.textContent = '✓ Saved!';
   setTimeout(() => { status.style.display = 'none'; }, 2000);
-  const agentName = localStorage.getItem('agentName') || '';
-  if (agentName) {
-    const firstName = agentName.split(' ')[0];
-    document.getElementById('agentGreeting').textContent =
-      'Hey ' + firstName + '! I\'m Coach G Support 🏈 What can I help you with today?';
-  }
 }
 
 // ─── IMAGE UPLOAD HANDLERS ─────────────────────────────────────────────────
