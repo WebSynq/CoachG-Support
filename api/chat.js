@@ -440,7 +440,8 @@ export default async function handler(req, res) {
     .map(o => o.trim())
     .filter(Boolean);
 
-  const origin = req.headers.origin || req.headers.referer || '';
+  const rawOrigin = req.headers.origin || req.headers.referer || '';
+  const origin = rawOrigin.replace(/(https?:\/\/[^\/]+).*/, '$1');
   const matchedOrigin = allowedOrigins.find(allowed => origin.startsWith(allowed));
   const originAllowed = allowedOrigins.length === 0 || !!matchedOrigin;
   const corsOrigin = matchedOrigin || allowedOrigins[0] || '';

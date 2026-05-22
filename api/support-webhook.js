@@ -75,7 +75,7 @@ export default async function handler(req, res) {
   }
 
   if (body.event === 'support.ticket.created') {
-    const { ticket } = body;
+    const { ticket, contact, account } = body;
     if (!ticket) return res.status(400).json({ error: 'Missing ticket data' });
     if (!ticket.category || !VALID_CATEGORIES.includes(ticket.category)) {
       return res.status(400).json({ error: 'Invalid ticket category' });
@@ -86,9 +86,14 @@ export default async function handler(req, res) {
     if (!ticket.description || typeof ticket.description !== 'string' || ticket.description.length > 1000) {
       return res.status(400).json({ error: 'Invalid ticket description' });
     }
-    // contact_id is optional — log warning but allow through
-    if (body.contact_id == null || body.contact_id === '') {
-      console.warn('[webhook] contact_id missing or empty — proceeding anyway');
+    if (!contact || typeof contact !== 'object') {
+      return res.status(400).json({ error: 'Missing contact data' });
+    }
+    if (!contact.firstName || !contact.lastName || !contact.email) {
+      return res.status(400).json({ error: 'Contact requires firstName, lastName, and email' });
+    }
+    if (!account || typeof account !== 'object') {
+      console.warn('[webhook] account object missing — proceeding anyway');
     }
   }
 
