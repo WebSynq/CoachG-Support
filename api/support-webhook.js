@@ -1,6 +1,6 @@
 // api/support-webhook.js — GHL webhook proxy
 // Keeps GHL_WEBHOOK_URL server-side, validates payload, forwards to GHL.
-// Env vars required: GHL_WEBHOOK_URL, ALLOWED_ORIGIN
+// Env vars required: GHL_WEBHOOK_URL, ALLOWED_ORIGINS (comma-separated) or ALLOWED_ORIGIN
 
 // ⚠️ SECURITY NOTE: Simple in-memory rate limiter — adequate for 79 internal users.
 const rateLimitMap = new Map();
@@ -29,10 +29,18 @@ const VALID_EVENTS = ['support.ticket.created', 'support.zoom.requested'];
 const VALID_CATEGORIES = ['Platform/Tech', 'Billing', 'Training', 'Compliance', 'Other'];
 
 export default async function handler(req, res) {
-  const allowedOrigin = process.env.ALLOWED_ORIGIN || '';
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGIN || '')
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
+
+  const origin = req.headers.origin || req.headers.referer || '';
+  const matchedOrigin = allowedOrigins.find(allowed => origin.startsWith(allowed));
+  const originAllowed = allowedOrigins.length === 0 || !!matchedOrigin;
+  const corsOrigin = matchedOrigin || allowedOrigins[0] || '';
 
   if (req.method === 'OPTIONS') {
-    setCORSHeaders(res, allowedOrigin);
+    setCORSHeaders(res, corsOrigin);
     return res.status(200).end();
   }
 
@@ -42,8 +50,7 @@ export default async function handler(req, res) {
 
   // 1. Origin validation
   // ⚠️ SECURITY NOTE: Never remove this check.
-  const origin = req.headers.origin || req.headers.referer || '';
-  if (allowedOrigin && !origin.startsWith(allowedOrigin)) {
+  if (!originAllowed) {
     return res.status(403).json({ error: 'Forbidden' });
   }
 
@@ -103,7 +110,7 @@ export default async function handler(req, res) {
     }
 
     console.log('[webhook] Fired:', body.event, body.ticket?.id || '');
-    setCORSHeaders(res, allowedOrigin);
+    setCORSHeaders(res, corsOrigin);
     return res.status(200).json({ ok: true, event: body.event });
 
   } catch (err) {

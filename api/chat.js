@@ -1,6 +1,6 @@
 // api/chat.js — Anthropic API proxy
 // Keeps ANTHROPIC_API_KEY server-side, never exposed to browser.
-// Env vars required: ANTHROPIC_API_KEY, ALLOWED_ORIGIN
+// Env vars required: ANTHROPIC_API_KEY, ALLOWED_ORIGINS (comma-separated) or ALLOWED_ORIGIN
 
 const SYSTEM_PROMPT = `You are Coach G Support — an expert GHL
 technician and automation specialist for insurance agencies in
@@ -435,11 +435,19 @@ function setCORSHeaders(res, allowedOrigin) {
 }
 
 export default async function handler(req, res) {
-  const allowedOrigin = process.env.ALLOWED_ORIGIN || '';
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGIN || '')
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
+
+  const origin = req.headers.origin || req.headers.referer || '';
+  const matchedOrigin = allowedOrigins.find(allowed => origin.startsWith(allowed));
+  const originAllowed = allowedOrigins.length === 0 || !!matchedOrigin;
+  const corsOrigin = matchedOrigin || allowedOrigins[0] || '';
 
   // CORS preflight
   if (req.method === 'OPTIONS') {
-    setCORSHeaders(res, allowedOrigin);
+    setCORSHeaders(res, corsOrigin);
     return res.status(200).end();
   }
 
@@ -449,8 +457,7 @@ export default async function handler(req, res) {
 
   // 1. Origin validation
   // ⚠️ SECURITY NOTE: Never remove this check. It prevents cross-origin abuse.
-  const origin = req.headers.origin || req.headers.referer || '';
-  if (allowedOrigin && !origin.startsWith(allowedOrigin)) {
+  if (!originAllowed) {
     return res.status(403).json({ error: 'Forbidden' });
   }
 
@@ -506,7 +513,7 @@ export default async function handler(req, res) {
     }
 
     const data = await anthropicRes.json();
-    setCORSHeaders(res, allowedOrigin);
+    setCORSHeaders(res, corsOrigin);
     return res.status(200).json(data);
 
   } catch (err) {

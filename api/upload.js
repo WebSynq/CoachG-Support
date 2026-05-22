@@ -1,7 +1,7 @@
 // api/upload.js — GHL Media Library upload proxy
 // Receives base64 image from browser, forwards as multipart to GHL, returns the media URL.
 // Keeps GHLAPI_KEY server-side, never exposed to browser.
-// Env vars required: GHLAPI_KEY, ALLOWED_ORIGIN
+// Env vars required: GHLAPI_KEY, ALLOWED_ORIGINS (comma-separated) or ALLOWED_ORIGIN
 
 const rateLimitMap = new Map();
 const RATE_LIMIT = 20;
@@ -28,10 +28,18 @@ function setCORSHeaders(res, allowedOrigin) {
 const MAX_BASE64_LENGTH = 7 * 1024 * 1024; // ~5MB raw → ~6.7MB base64
 
 export default async function handler(req, res) {
-  const allowedOrigin = process.env.ALLOWED_ORIGIN || '';
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGIN || '')
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
+
+  const origin = req.headers.origin || req.headers.referer || '';
+  const matchedOrigin = allowedOrigins.find(allowed => origin.startsWith(allowed));
+  const originAllowed = allowedOrigins.length === 0 || !!matchedOrigin;
+  const corsOrigin = matchedOrigin || allowedOrigins[0] || '';
 
   if (req.method === 'OPTIONS') {
-    setCORSHeaders(res, allowedOrigin);
+    setCORSHeaders(res, corsOrigin);
     return res.status(200).end();
   }
 
@@ -41,8 +49,7 @@ export default async function handler(req, res) {
 
   // 1. Origin validation
   // ⚠️ SECURITY NOTE: Never remove this check.
-  const origin = req.headers.origin || req.headers.referer || '';
-  if (allowedOrigin && !origin.startsWith(allowedOrigin)) {
+  if (!originAllowed) {
     return res.status(403).json({ error: 'Forbidden' });
   }
 
@@ -101,7 +108,7 @@ export default async function handler(req, res) {
     try { data = JSON.parse(ghlBody); } catch (_) { /* leave as empty */ }
 
     console.log('[upload] Uploaded:', name, '→', data.fileId || data.url || '(no id returned)');
-    setCORSHeaders(res, allowedOrigin);
+    setCORSHeaders(res, corsOrigin);
     return res.status(200).json({ url: data.url || null, fileId: data.fileId || null });
 
   } catch (err) {
