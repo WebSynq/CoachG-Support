@@ -389,7 +389,7 @@
             <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>Forms, funnels &amp; webhooks</li>
             <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>Snapshots &amp; sub-account config</li>
             <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>Email deliverability (SPF/DKIM/DMARC)</li>
-            <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>Medicare, annuity &amp; carrier product questions</li>
+            <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>Product, plan &amp; pipeline questions</li>
             <li class="flex items-start gap-3"><span class="text-gold mt-1">▸</span>TCPA &amp; CMS compliance basics</li>
           </ul>
         </div>
@@ -555,8 +555,8 @@ function getFirstName() {
 function refreshGreeting() {
   const first = getFirstName();
   const greeting = first
-    ? `Hey ${first} — Coach G here. What can I help you fix today? Workflows, A2P, Medicare carriers, Conversation AI — I've got you. Ask away or drop a screenshot.`
-    : `Hey — Coach G here. What can I help you fix today? Workflows, A2P, Medicare carriers, Conversation AI — I've got you. Ask away or drop a screenshot.`;
+    ? `Hey ${first} — Coach G here. What can I help you fix today? Workflows, A2P, Conversation AI, billing — I've got you. Ask away or drop a screenshot.`
+    : `Hey — Coach G here. What can I help you fix today? Workflows, A2P, Conversation AI, billing — I've got you. Ask away or drop a screenshot.`;
 
   const msgs = document.getElementById('messages');
   // Only render greeting if no messages yet
