@@ -308,14 +308,24 @@
 
           <div class="acct-grid">
             <div class="form-group">
-              <label class="form-label">Your Name</label>
-              <input type="text" id="agentName" placeholder="First Last"
-                onblur="autoSaveField('agentName')" />
+              <label class="form-label">First Name</label>
+              <input type="text" id="firstName" placeholder="First name"
+                onblur="autoSaveField('firstName')" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Last Name</label>
+              <input type="text" id="lastName" placeholder="Last name"
+                onblur="autoSaveField('lastName')" />
             </div>
             <div class="form-group">
               <label class="form-label">Email</label>
               <input type="email" id="agentEmail" placeholder="you@agency.com"
                 onblur="autoSaveField('agentEmail')" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="text" id="agentPhone" placeholder="(555) 555-5555"
+                onblur="autoSaveField('agentPhone')" />
             </div>
             <div class="form-group">
               <label class="form-label">Account Name</label>
@@ -326,6 +336,9 @@
               <label class="form-label">Account ID</label>
               <input type="text" id="accountId" placeholder="GHL location ID"
                 onblur="autoSaveField('accountId')" />
+              <div style="font-size:11px;color:var(--text-muted);margin-top:6px;line-height:1.5;">
+                Find this in GHL → Settings → Business Profile → scroll to bottom
+              </div>
             </div>
           </div>
 
@@ -357,12 +370,12 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Priority</label>
-            <select id="ticketPriority">
-              <option value="">Select priority...</option>
-              <option value="1">1 — Low (can wait)</option>
-              <option value="2">2 — Medium (this week)</option>
-              <option value="3">3 — High (today)</option>
+            <label class="form-label">How quickly do you need help?</label>
+            <select id="ticketUrgency">
+              <option value="">Select urgency...</option>
+              <option value="1">Not blocking me — respond when you can</option>
+              <option value="2">Slowing me down — respond within 48 hrs</option>
+              <option value="3">I'm completely stuck — respond today</option>
             </select>
           </div>
 
@@ -370,6 +383,12 @@
             <label class="form-label">Describe Your Issue</label>
             <textarea id="ticketDescription" rows="4"
               placeholder="Describe what's happening and any steps you already tried..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">What have you already tried?</label>
+            <textarea id="alreadyTried" rows="4"
+              placeholder="Steps you've already taken to fix this..."></textarea>
           </div>
 
           <div class="form-group">
@@ -430,7 +449,7 @@ let ticketImageBase64 = null;
 // GHL Custom Menu Links don't resolve merge tags in URLs, so agents enter
 // their own identity once in the Support Ticket tab. Values persist via localStorage.
 
-const IDENTITY_KEYS = ['agentName', 'agentEmail', 'accountName', 'accountId'];
+const IDENTITY_KEYS = ['firstName', 'lastName', 'agentEmail', 'agentPhone', 'accountName', 'accountId'];
 
 function populateAgentInfo() {
   IDENTITY_KEYS.forEach(k => {
@@ -673,32 +692,35 @@ async function sendMessage() {
 
 async function submitTicketForm() {
   // Identity comes from localStorage (Section 1 of the Support Ticket tab)
-  const name = (localStorage.getItem('agentName') || '').trim();
+  const firstName = (localStorage.getItem('firstName') || '').trim();
+  const lastName = (localStorage.getItem('lastName') || '').trim();
   const email = (localStorage.getItem('agentEmail') || '').trim();
+  const phone = (localStorage.getItem('agentPhone') || '').trim();
   const accountId = (localStorage.getItem('accountId') || '').trim();
   const accountName = (localStorage.getItem('accountName') || '').trim();
 
   const category = document.getElementById('ticketCategory').value;
-  const priority = document.getElementById('ticketPriority').value;
+  const urgency = document.getElementById('ticketUrgency').value;
   const description = document.getElementById('ticketDescription').value.trim();
+  const stepsTried = document.getElementById('alreadyTried').value.trim();
   const statusEl = document.getElementById('ticketFormStatus');
   const btn = document.getElementById('submitTicketBtn');
 
   // Validation
-  if (!name || !email) {
+  if (!firstName || !lastName || !email) {
     statusEl.style.display = 'block';
     statusEl.style.background = 'rgba(239,68,68,0.12)';
     statusEl.style.border = '1px solid rgba(239,68,68,0.3)';
     statusEl.style.color = 'var(--red)';
-    statusEl.textContent = 'Add your name and email in "Your Info" above first.';
+    statusEl.textContent = 'Add your first name, last name, and email in "Your Info" above first.';
     return;
   }
-  if (!category || !priority || !description) {
+  if (!category || !urgency || !description || !stepsTried) {
     statusEl.style.display = 'block';
     statusEl.style.background = 'rgba(239,68,68,0.12)';
     statusEl.style.border = '1px solid rgba(239,68,68,0.3)';
     statusEl.style.color = 'var(--red)';
-    statusEl.textContent = 'Fill in category, priority, and description before submitting.';
+    statusEl.textContent = 'Fill in category, urgency, description, and what you\'ve tried before submitting.';
     return;
   }
 
@@ -746,7 +768,12 @@ async function submitTicketForm() {
     event: 'support.ticket.created',
     source: 'coachg-support-portal',
     timestamp: new Date().toISOString(),
-    contact: { firstName: name, email: email },
+    contact: {
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      phone: phone
+    },
     account: {
       id: localStorage.getItem('accountId') || '',
       name: localStorage.getItem('accountName') || ''
@@ -754,8 +781,9 @@ async function submitTicketForm() {
     ticket: {
       id: ticketId,
       category: category,
-      priority: parseInt(priority),
+      priority: parseInt(urgency),
       description: description,
+      steps_tried: stepsTried,
       status: 'open',
       screenshot_url: screenshotUrl || ''
     }
@@ -780,8 +808,9 @@ async function submitTicketForm() {
 
       // Clear only ticket-specific fields — keep identity intact
       document.getElementById('ticketCategory').value = '';
-      document.getElementById('ticketPriority').value = '';
+      document.getElementById('ticketUrgency').value = '';
       document.getElementById('ticketDescription').value = '';
+      document.getElementById('alreadyTried').value = '';
       clearTicketImage();
 
       btn.textContent = 'Submit Another Ticket →';
