@@ -3,6 +3,14 @@
 // Keeps GHLAPI_KEY server-side, never exposed to browser.
 // Env vars required: GHLAPI_KEY, ALLOWED_ORIGINS (comma-separated) or ALLOWED_ORIGIN
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '8mb'
+    }
+  }
+};
+
 const rateLimitMap = new Map();
 const RATE_LIMIT = 20;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
@@ -85,7 +93,7 @@ export default async function handler(req, res) {
     const blob = new Blob([buffer], { type });
     const formData = new FormData();
     formData.append('file', blob, name);
-    if (locationId && typeof locationId === 'string') {
+    if (locationId && typeof locationId === 'string' && locationId !== 'null' && locationId.trim()) {
       formData.append('locationId', locationId);
     }
 
