@@ -42,7 +42,8 @@ CoachG-Support/
 │   └── index.html              ← Support portal UI (chat + ticket + Zoom tabs)
 ├── api/
 │   ├── chat.js                 ← Anthropic API proxy (keeps API key server-side)
-│   └── support-webhook.js      ← GHL webhook proxy (keeps webhook URL server-side)
+│   ├── support-webhook.js      ← GHL webhook proxy (keeps webhook URL server-side)
+│   └── upload.js               ← Supabase Storage upload proxy (keeps service key server-side)
 ├── CLAUDE.md                   ← Claude Code session context (do not delete)
 ├── .env.example                ← Environment variable template
 ├── .gitignore                  ← Excludes .env.local, node_modules, .vercel
@@ -62,6 +63,9 @@ Never commit actual values to the repo.
 |---|---|---|
 | `ANTHROPIC_API_KEY` | [console.anthropic.com](https://console.anthropic.com) | ✅ |
 | `GHL_WEBHOOK_URL` | GHL → Automation → Workflows → Webhook Trigger → copy URL | ✅ |
+| `SUPABASE_URL` | Supabase → Project Settings → API → Project URL | ✅ |
+| `SUPABASE_SERVICE_KEY` | Supabase → Project Settings → API → `service_role` key | ✅ |
+| `SUPABASE_BUCKET` | Storage bucket name (e.g. `Support Bucket`) | ✅ |
 | `ALLOWED_ORIGIN` | Your Vercel deploy URL (e.g. `https://coachg-support.vercel.app`) | ✅ |
 
 Copy `.env.example` to `.env.local` for local development:
@@ -180,6 +184,35 @@ Proxies conversation to Anthropic Claude API. Keeps `ANTHROPIC_API_KEY` server-s
 
 ---
 
+### `POST /api/upload`
+Uploads a base64-encoded image to Supabase Storage and returns a public URL. Keeps `SUPABASE_SERVICE_KEY` server-side.
+
+**Request:**
+```json
+{
+  "name": "screenshot.png",
+  "type": "image/png",
+  "base64": "iVBORw0KGgo...",
+  "locationId": "ghl-subaccount-id"
+}
+```
+
+**Response:**
+```json
+{
+  "url": "https://<project>.supabase.co/storage/v1/object/public/<bucket>/<path>",
+  "fileId": "<locationId>/<timestamp>-<rand>-<filename>"
+}
+```
+
+Files are namespaced by `locationId` inside the bucket so uploads are scoped per GHL sub-account.
+
+**Rate limit:** 20 requests / hour / IP · **Max size:** ~5MB · **Allowed types:** `image/*`
+
+> The bucket must be set to **Public** in Supabase for the returned URL to resolve. For private buckets, switch the route to issue signed URLs instead.
+
+---
+
 ### `POST /api/support-webhook`
 Validates and proxies support events to GHL. Keeps `GHL_WEBHOOK_URL` server-side.
 
@@ -209,7 +242,7 @@ Validates and proxies support events to GHL. Keeps `GHL_WEBHOOK_URL` server-side
 
 - All API keys and webhook URLs are **server-side only** — never in browser code
 - Origin header validated on every API request against `ALLOWED_ORIGIN`
-- Rate limiting on both `/api/chat` (40/hr) and `/api/support-webhook` (10/hr) per IP
+- Rate limiting on `/api/chat` (40/hr), `/api/support-webhook` (10/hr), and `/api/upload` (20/hr) per IP
 - Input validation on all payloads before forwarding
 - Security headers on all routes via `vercel.json`
 
