@@ -3,6 +3,14 @@
 // Keeps SUPABASE_SERVICE_KEY server-side, never exposed to browser.
 // Env vars required: SUPABASE_URL, SUPABASE_SERVICE_KEY, SUPABASE_BUCKET, ALLOWED_ORIGINS (comma-separated) or ALLOWED_ORIGIN
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '8mb'
+    }
+  }
+};
+
 const rateLimitMap = new Map();
 const RATE_LIMIT = 20;
 const RATE_WINDOW_MS = 60 * 60 * 1000;

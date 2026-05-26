@@ -746,10 +746,14 @@ async function submitTicketForm() {
         })
       });
       const uploadData = await uploadRes.json().catch(() => ({}));
-      if (!uploadRes.ok || !uploadData.url) {
-        throw new Error(uploadData.error || 'Screenshot upload failed');
+      if (!uploadRes.ok) {
+        const detail = uploadData.detail || uploadData.error || `HTTP ${uploadRes.status}`;
+        throw new Error('Screenshot upload failed: ' + detail);
       }
-      screenshotUrl = uploadData.url;
+      screenshotUrl = uploadData.url || (uploadData.fileId ? `ghl://media/${uploadData.fileId}` : null);
+      if (!screenshotUrl) {
+        throw new Error('Upload succeeded but GHL returned no URL — check GHLAPI_KEY and locationId in Vercel env vars');
+      }
     } catch (uploadErr) {
       statusEl.style.display = 'block';
       statusEl.style.background = 'rgba(239,68,68,0.12)';
