@@ -1,7 +1,7 @@
-// api/upload.js — GHL Media Library upload proxy
-// Receives base64 image from browser, forwards as multipart to GHL, returns the media URL.
-// Keeps GHLAPI_KEY server-side, never exposed to browser.
-// Env vars required: GHLAPI_KEY, ALLOWED_ORIGINS (comma-separated) or ALLOWED_ORIGIN
+// api/upload.js — Supabase Storage upload proxy
+// Receives base64 image from browser, uploads to Supabase Storage, returns the public URL.
+// Keeps SUPABASE_SERVICE_KEY server-side, never exposed to browser.
+// Env vars required: SUPABASE_URL, SUPABASE_SERVICE_KEY, SUPABASE_BUCKET, ALLOWED_ORIGINS (comma-separated) or ALLOWED_ORIGIN
 
 export const config = {
   api: {
@@ -34,6 +34,21 @@ function setCORSHeaders(res, allowedOrigin) {
 }
 
 const MAX_BASE64_LENGTH = 7 * 1024 * 1024; // ~5MB raw → ~6.7MB base64
+
+function sanitizeFileName(name) {
+  // Strip path separators, keep extension, replace unsafe chars
+  const base = name.replace(/[\\/]/g, '_').replace(/[^a-zA-Z0-9._-]/g, '_');
+  return base.slice(0, 100);
+}
+
+function buildObjectPath(locationId, fileName) {
+  const safeLocation = (locationId && typeof locationId === 'string')
+    ? locationId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64)
+    : 'unscoped';
+  const ts = Date.now();
+  const rand = Math.random().toString(36).slice(2, 10);
+  return `${safeLocation}/${ts}-${rand}-${sanitizeFileName(fileName)}`;
+}
 
 export default async function handler(req, res) {
   const allowedOrigins = (process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGIN || '')
@@ -69,8 +84,11 @@ export default async function handler(req, res) {
   }
 
   // 3. Validate env
-  if (!process.env.GHLAPI_KEY) {
-    console.error('[upload] GHLAPI_KEY not configured');
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+  const bucket = process.env.SUPABASE_BUCKET;
+  if (!supabaseUrl || !supabaseKey || !bucket) {
+    console.error('[upload] Supabase env vars not configured');
     return res.status(500).json({ error: 'Upload service not configured' });
   }
 
@@ -86,39 +104,40 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'File missing or too large (max ~5MB)' });
   }
 
-  // 5. Convert base64 → multipart and forward to GHL
-  // ⚠️ SECURITY NOTE: GHLAPI_KEY lives only in env vars. Never log it.
+  // 5. Upload to Supabase Storage via REST
+  // ⚠️ SECURITY NOTE: SUPABASE_SERVICE_KEY lives only in env vars. Never log it.
   try {
     const buffer = Buffer.from(base64, 'base64');
-    const blob = new Blob([buffer], { type });
-    const formData = new FormData();
-    formData.append('file', blob, name);
-    if (locationId && typeof locationId === 'string' && locationId !== 'null' && locationId.trim()) {
-      formData.append('locationId', locationId);
-    }
+    const objectPath = buildObjectPath(locationId, name);
+    const encodedBucket = encodeURIComponent(bucket);
+    const encodedPath = objectPath.split('/').map(encodeURIComponent).join('/');
+    const baseUrl = supabaseUrl.replace(/\/+$/, '');
 
-    const ghlRes = await fetch('https://services.leadconnectorhq.com/medias/upload-file', {
+    const uploadUrl = `${baseUrl}/storage/v1/object/${encodedBucket}/${encodedPath}`;
+
+    const uploadRes = await fetch(uploadUrl, {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + process.env.GHLAPI_KEY,
-        'Version': '2021-07-28'
+        'Authorization': 'Bearer ' + supabaseKey,
+        'Content-Type': type,
+        'x-upsert': 'false',
+        'Cache-Control': '3600'
       },
-      body: formData
+      body: buffer
     });
 
-    const ghlBody = await ghlRes.text();
+    const uploadBody = await uploadRes.text();
 
-    if (!ghlRes.ok) {
-      console.error('[upload] GHL returned error:', ghlRes.status, ghlBody.slice(0, 300));
-      return res.status(502).json({ error: 'Upload to GHL failed', status: ghlRes.status });
+    if (!uploadRes.ok) {
+      console.error('[upload] Supabase returned error:', uploadRes.status, uploadBody.slice(0, 300));
+      return res.status(502).json({ error: 'Upload to Supabase failed', status: uploadRes.status });
     }
 
-    let data = {};
-    try { data = JSON.parse(ghlBody); } catch (_) { /* leave as empty */ }
+    const publicUrl = `${baseUrl}/storage/v1/object/public/${encodedBucket}/${encodedPath}`;
 
-    console.log('[upload] Uploaded:', name, '→', data.fileId || data.url || '(no id returned)');
+    console.log('[upload] Uploaded:', name, '→', objectPath);
     setCORSHeaders(res, corsOrigin);
-    return res.status(200).json({ url: data.url || null, fileId: data.fileId || null });
+    return res.status(200).json({ url: publicUrl, fileId: objectPath });
 
   } catch (err) {
     console.error('[upload] Proxy error:', err.message);
