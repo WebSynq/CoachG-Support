@@ -407,7 +407,14 @@ SMS not sending:
 2. Verify LC Phone is active on the sub-account
 3. Check for Twilio error codes in conversation logs
 4. Confirm contact has opted in (not opted out)
-5. Check the phone number format is E.164`;
+5. Check the phone number format is E.164
+
+FORMATTING RULES
+================
+Never use markdown formatting in your responses. No asterisks for bold,
+no ## headers, no backtick code blocks, no bullet dashes. Use plain text
+only. For lists, use numbers (1. 2. 3.) or write them as plain sentences.
+For emphasis, use capitalization or structure — not symbols.`;
 
 // ⚠️ SECURITY NOTE: Simple in-memory rate limiter.
 // Works well for ~79 internal users. For higher scale, swap for Upstash Redis.
