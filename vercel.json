@@ -1,23 +1,35 @@
 {
   "version": 2,
-  "public": true,
-  "rewrites": [
-    { "source": "/", "destination": "/public/index.html" }
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/$1"
+    }
   ],
   "headers": [
     {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
-      ]
-    },
-    {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Content-Security-Policy", "value": "frame-ancestors https://*.gohighlevel.com https://app.gohighlevel.com https://*.leadconnectorhq.com https://*.coachscrm.com https://app.coachscrm.com;" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "ALLOWALL"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors 'self' https://*.gohighlevel.com https://*.leadconnectorhq.com https://*.msgsndr.com https://app.coachscrm.com https://*.coachscrm.com"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
       ]
     }
   ]
